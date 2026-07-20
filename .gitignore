@@ -1,0 +1,8 @@
+# Hugo 构建输出
+public/
+
+# Hugo 缓存
+resources/
+
+# Hugo 构建锁
+.hugo_build.lock
