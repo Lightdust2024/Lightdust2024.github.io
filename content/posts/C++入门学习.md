@@ -1,5 +1,5 @@
 ---
-title: "C 入门学习"
+title: "C++入门学习"
 date: 2026-07-21T21:13:07+08:00
 # bookComments: false
 # bookSearchExclude: false
