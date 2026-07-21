@@ -1,5 +1,5 @@
-baseURL = 'https://Lightdust2024.github.io/'
+baseURL = 'https://tabyun.cn/'
 locale = 'zh-cn'
 title = 'Lightdust的博客'
-theme = "PaperMod"
+theme = "hugo-book"
 
