@@ -1,5 +1,5 @@
 baseURL = 'https://Lightdust2024.github.io/'
 locale = 'zh-cn'
 title = 'Lightdust的博客'
-theme = "hugo-book"
+theme = "PaperMod"
 
