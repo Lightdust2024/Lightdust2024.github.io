@@ -1,8 +1,10 @@
-+++
-date = '2026-07-20T22:39:42+08:00'
-draft = false
-title = 'C++入门学习'
-+++
+---
+title: "C 入门学习"
+date: 2026-07-21T21:13:07+08:00
+# bookComments: false
+# bookSearchExclude: false
+# bookPostThumbnail: thumbnail.*
+---
 
 # C++入门学习
 
@@ -914,7 +916,6 @@ int main() {
 将结构体作为参数向函数中传递
 
 > 总结：如果不想修改主函数中的数据，用值传递，反之用地址传递
-
 ---
 
 ### 8.5 结构体中const使用场景
