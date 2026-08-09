@@ -1,0 +1,9 @@
+baseURL = 'https://example.org/'
+locale = 'zh'
+title = 'Lightdust的个人博客'
+theme = "stack"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
