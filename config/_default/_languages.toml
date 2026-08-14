@@ -1,0 +1,9 @@
+# Rename this file to languages.toml to enable multilingual support
+[zh]
+    label     = "简体中文"
+    direction = "ltr"
+    title     = "Lightdust的博客"
+    weight    = 1
+
+    [zh.params.sidebar]
+        subtitle = "正在学习博客中"

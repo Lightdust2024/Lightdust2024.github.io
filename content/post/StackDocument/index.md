@@ -1,6 +1,6 @@
 ---
-title: stack主题文档
-description: 官方文档
+title: stack主题中文文档
+description: 官方文档，已经整理并翻译为中文，以便随时查阅，并且加入了一些个人的记录
 slug: HugoThemesLearning
 date: 2023-08-26 00:00:00+0000
 image: cover.jpg
@@ -8,7 +8,7 @@ math: true
 
 ---
 
-# 图片画廊
+## 图片画廊
 
 使用 Markdown 创建漂亮的交互式图片画廊
 
@@ -16,13 +16,13 @@ Hugo Stack 主题支持使用 Markdown 创建交互式图片画廊。它由 [Pho
 
 要使用此功能，图片必须与 Markdown 文件位于同一目录中，因为它需要借助 Hugo 的页面包（page bundle）功能来读取图片尺寸。**不支持外部图片。**
 
-## 语法
+### 语法
 
 ```markdown
 ![图片 1](1.jpg) ![图片 2](2.jpg)
 ```
 
-## 效果
+### 效果
 
 ![图片 1](1.jpg) ![图片 2](2.jpg)
 
@@ -30,7 +30,7 @@ Hugo Stack 主题支持使用 Markdown 创建交互式图片画廊。它由 [Pho
 
 
 
-# Markdown 语法指南
+## Markdown 语法指南
 
 展示基本 Markdown 语法及 HTML 元素格式化的示例文章
 
@@ -38,34 +38,34 @@ Hugo Stack 主题支持使用 Markdown 创建交互式图片画廊。它由 [Pho
 
 <!--more-->
 
-## 标题
+### 标题
 
 HTML `<h1>`—`<h6>` 元素代表了六个层级的章节标题。`<h1>` 是最高层级的标题，而 `<h6>` 是最低层级的标题。
 
 
-## 段落
+### 段落
 
 这是一段示例文字，用于展示中文段落在页面上的排版效果。它可以包含多句话，用以模拟真实文章中的段落长度。这段文字仅仅是为了演示排版样式，并不传达任何具体含义。你可以看到，普通段落在默认样式下会呈现为首行缩进、行距适中的正文样式，并与其他元素保持合理的间距。
 
 这是第二段示例文字。在真实文章中，段落之间通常会用一个空行分隔，以便读者更轻松地阅读。Hugo 在渲染 Markdown 时会自动将连续的文本行合并为段落。
 
-## 引用块
+### 引用块
 
 引用块元素表示从其他来源引用的内容，可以附带位于 `footer` 或 `cite` 元素内的引用来源，也可以包含诸如注释和缩写之类的行内修改。
 
-### 无署名的引用块
+#### 无署名的引用块
 
 > 这是一段被引用的文字，用于展示引用块的样式。引用块通常用于突出显示他人说过的话或需要特别强调的内容。
 > **注意**，在引用块内可以使用 *Markdown 语法*。
 
-### 带署名的引用块
+#### 带署名的引用块
 
 > 不要通过共享内存来通信，而要通过通信来共享内存。<br>
 > — <cite>Rob Pike[^1]</cite>
 
 [^1]: 上述引言摘自 Rob Pike 在 2015 年 11 月 18 日 Gopherfest 上的[演讲](https://www.youtube.com/watch?v=PAAkCSZUG1c)。
 
-## 表格
+### 表格
 
 表格并非核心 Markdown 规范的一部分，但 Hugo 开箱即用地支持它们。
 
@@ -74,7 +74,7 @@ HTML `<h1>`—`<h6>` 元素代表了六个层级的章节标题。`<h1>` 是最�
 | Bob   | 27   |
 | Alice | 23   |
 
-### 表格中的行内 Markdown
+#### 表格中的行内 Markdown
 
 | 斜体      | 粗体     | 代码   |
 | --------- | -------- | ------ |
@@ -86,9 +86,9 @@ HTML `<h1>`—`<h6>` 元素代表了六个层级的章节标题。`<h1>` 是最�
 
 这是一段示例文字，用于展示表格单元格中较长文本的显示效果。
 
-## 代码块
+### 代码块
 
-### 使用反引号的代码块
+#### 使用反引号的代码块
 
 ```html
 <!doctype html>
@@ -103,7 +103,7 @@ HTML `<h1>`—`<h6>` 元素代表了六个层级的章节标题。`<h1>` 是最�
 </html>
 ```
 
-### 缩进四个空格的代码块
+#### 缩进四个空格的代码块
 
     <!doctype html>
     <html lang="en">
@@ -116,7 +116,7 @@ HTML `<h1>`—`<h6>` 元素代表了六个层级的章节标题。`<h1>` 是最�
     </body>
     </html>
 
-### Diff 代码块
+#### Diff 代码块
 
 ```diff
 [dependencies.bevy]
@@ -126,27 +126,27 @@ rev = "11f52b8c72fc3a568e8bb4a4cd1f3eb025ac2e13"
 + features = ["jpeg", "dynamic"]
 ```
 
-### 单行代码块
+#### 单行代码块
 
 ```html
 <p>A paragraph</p>
 ```
 
-## 列表类型
+### 列表类型
 
-### 有序列表
+#### 有序列表
 
 1. 第一项
 2. 第二项
 3. 第三项
 
-### 无序列表
+#### 无序列表
 
 * 列表项
 * 另一个列表项
 * 还有一个列表项
 
-### 嵌套列表
+#### 嵌套列表
 
 * 水果
   * 苹果
@@ -156,7 +156,7 @@ rev = "11f52b8c72fc3a568e8bb4a4cd1f3eb025ac2e13"
   * 牛奶
   * 奶酪
 
-## 其他元素——abbr、sub、sup、kbd、mark
+### 其他元素——abbr、sub、sup、kbd、mark
 
 <abbr title="Graphics Interchange Format">GIF</abbr> 是一种位图图像格式。
 
@@ -170,7 +170,7 @@ X<sup>n</sup> + Y<sup>n</sup> = Z<sup>n</sup>
 
 
 
-# 数学排版
+## 数学排版
 
 使用 KaTeX 进行数学排版
 
@@ -178,7 +178,7 @@ Stack 内置了对使用 [KaTeX](https://katex.org/) 进行数学排版的支持
 
 **默认情况下它并未全站启用，** 但你可以通过在 front matter 中添加 `math: true` 来为单篇文章启用它。或者你也可以在 `config.toml` 的 `params.article` 部分添加 `math = true` 来全站启用。
 
-## 行内数学
+### 行内数学
 
 这是一个行内数学表达式：$\varphi = \dfrac{1+\sqrt5}{2}= 1.6180339887…$
 
@@ -186,7 +186,7 @@ Stack 内置了对使用 [KaTeX](https://katex.org/) 进行数学排版的支持
 $\varphi = \dfrac{1+\sqrt5}{2}= 1.6180339887…$
 ```
 
-## 块级数学
+### 块级数学
 
 $$
     \varphi = 1+\frac{1} {1+\frac{1} {1+\frac{1} {1+\cdots} } } 
@@ -210,33 +210,33 @@ $$
 
 
 
-# 短代码
+## 短代码
 
 可以在 Markdown 中使用的实用短代码
 
 更多详情，请查看[文档](https://stack.jimmycai.com/writing/shortcodes)。
 
-## Bilibili 视频
+### Bilibili 视频
 
 {{< bilibili "BV1d4411N7zD" >}}
 
-## 腾讯视频
+### 腾讯视频
 
 {{< tencent "g0014r3khdw" >}}
 
-## YouTube 视频
+### YouTube 视频
 
 {{< youtube "0qwALOOvUik" >}}
 
-## 通用视频文件
+### 通用视频文件
 
 {{< video "https://www.w3schools.com/tags/movie.mp4" >}}
 
-## GitLab
+### GitLab
 
 {{< gitlab 2589724 >}}
 
-## 引用
+### 引用
 
 {{< quote author="一位知名人士" source="他们写的书" url="https://en.wikipedia.org/wiki/Book">}}
 这里是引用内容。引用可以是一段较长的文字，用于展示该短代码的显示效果。当你希望在一篇文章中突出显示某段名言、评论或重要说明时，可以使用引用短代码。它会以醒目的样式呈现这段文字，并可选地附上作者与来源信息。引用内容支持普通的 Markdown 格式，包括行内代码、链接和强调等。如果引用内容较长，它会自动换行并保持良好的可读性。
@@ -245,4 +245,19 @@ $$
 -----
 
 > 照片来自 [Codioful](https://unsplash.com/@codioful)，发布于 [Unsplash](https://unsplash.com/photos/WDSN62Qdxuk)
+
+> [!NOTE]
+> 这是一个提示块，用于提供补充说明。
+
+> [!TIP]
+> 这是一个技巧块，用于分享最佳实践或小窍门。
+
+> [!IMPORTANT]
+> 这是一个重要块，用于强调关键信息。
+
+> [!WARNING]
+> 这是一个警告块，用于提醒潜在风险。
+
+> [!CAUTION]
+> 这是一个警示块，用于警告可能导致严重后果的操作。
 

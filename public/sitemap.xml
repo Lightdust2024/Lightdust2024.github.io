@@ -3,12 +3,18 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>http://localhost:1313/</loc>
-    <lastmod>2026-07-21T21:13:07+08:00</lastmod>
+    <lastmod>2026-08-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/page/</loc>
+    <lastmod>2026-08-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/%E5%85%B3%E4%BA%8Elightdust%E7%9A%84%E5%8D%9A%E5%AE%A2/</loc>
+    <lastmod>2026-08-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/c&#43;&#43;/</loc>
     <lastmod>2026-07-21T21:13:07+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/post/c&#43;&#43;basicnote/</loc>
+    <loc>http://localhost:1313/p/c-basicnote/</loc>
     <lastmod>2026-07-21T21:13:07+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/</loc>
@@ -26,7 +32,12 @@
     <loc>http://localhost:1313/categories/%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/</loc>
     <lastmod>2026-07-21T21:13:07+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/post/hugothemeslearning/</loc>
+    <loc>http://localhost:1313/p/hugothemeslearning/</loc>
     <lastmod>2023-08-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/archives/</loc>
+    <lastmod>2022-03-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/search/</loc>
   </url>
 </urlset>

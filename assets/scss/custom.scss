@@ -1,0 +1,134 @@
+:root {
+    --body-background: url("/img/background1.png");
+    --card-background: rgba(250, 250, 250, 0.65);
+    --card-border-color: rgba(250, 250, 250, 0.65);
+    --scrollbar-track: rgba(250, 250, 250, 0.65);
+    --table-border-color: #999999;
+    --tr-even-background-color: rgba(0, 0, 0, 0.2);
+    --blockquote-background-color: rgba(0, 0, 0, 0.2);
+    --code-text-color: #606060;
+    --code-background-color: #75757550;
+    --body-text-color: #404040;
+    --card-text-color-secondary: #404040;
+    --pre-background-color: #f9f9ee;
+    &[data-scheme="dark"] {
+        --body-background: url("/img/background2.png");
+        --card-background: rgba(0, 0, 0, 0.65);
+        --card-border-color: rgba(0, 0, 0, 0.65);
+        --scrollbar-track: rgba(0, 0, 0, 0.65);
+        --table-border-color: #404040;
+        --tr-even-background-color: rgba(200, 200, 200, 0.2);
+        --blockquote-background-color: rgba(250, 250, 250, 0.1);
+        --code-text-color: #909090;
+        --code-background-color: #75757550;
+        --pre-background-color: #22221c;
+    }
+}
+
+//页面背景
+body {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center center;
+}
+
+//毛玻璃效果（模糊层）
+.widget:not(.archives),
+.sidebar-inner,
+.pagination,
+.section {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.article-content {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+//文章内容背景（独立于卡片背景）
+.article-content {
+    --card-background: rgba(255, 255, 255, 1); // 亮色下不透明
+
+    [data-scheme="dark"] & {
+        --card-background: rgba(0, 0, 0, 1); // 暗色下不透明
+    }
+}
+
+//键盘按键
+kbd {
+    border-color: #555555 !important;
+}
+
+//代码高亮块
+.highlight {
+    pre,
+    table,
+    td,
+    .lntd {
+        background-color: var(--pre-background-color) !important;
+    }
+}
+
+//滚动条
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track) !important;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.5);
+    border-radius: 10px;
+
+    &:hover {
+        background: rgba(128, 128, 128, 0.7);
+    }
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(128, 128, 128, 0.5) transparent;
+}
+
+//提示框（Alert）颜色变量
+// 使用循环生成亮/暗两种模式下的四个提示类型
+$alert-types: ( note: (light-sep: rgba(101, 187, 238, 0.5), light-bg: rgba(231, 242, 250, 0.5), dark-sep: rgba(0, 102, 153, 0.5), dark-bg: rgba(0, 34, 52, 0.5)), tip: (light-sep: rgba(85, 170, 85, 0.5), light-bg: rgba(238, 255, 238, 0.5), dark-sep: rgba(51, 103, 51, 0.5), dark-bg: rgba(17, 35, 16, 0.5)), warn: (light-sep: rgba(255, 187, 120, 0.5), light-bg: rgba(255, 238, 204, 0.5), dark-sep: rgba(170, 85, 1, 0.5), dark-bg: rgba(69, 35, 0, 0.5)), error: (light-sep: rgba(204, 51, 52, 0.5), light-bg: rgba(255, 238, 239, 0.5), dark-sep: rgba(136, 0, 0, 0.5), dark-bg: rgba(69, 0, 0, 0.5)) );
+[data-scheme="light"] {
+    @each $type, $colors in $alert-types {
+        .alert-#{$type} {
+            --card-separator-color: map-get($colors, light-sep);
+            --blockquote-background-color: map-get($colors, light-bg);
+        }
+    }
+}
+[data-scheme="dark"] {
+    @each $type, $colors in $alert-types {
+        .alert-#{$type} {
+            --card-separator-color: map-get($colors, dark-sep);
+            --blockquote-background-color: map-get($colors, dark-bg);
+        }
+    }
+}
+
+//复制按钮
+[data-scheme="light"] {
+    .copyCodeButton {
+        background: #2c3e50 !important;
+        color: #ecf0f1 !important;
+
+        &:hover {
+            background: #34495e !important;
+        }
+    }
+}
+[data-scheme="dark"] {
+    .copyCodeButton {
+        background: #7f8c8d !important;
+        color: #ffffff !important;
+
+        &:hover {
+            background: #95a5a6 !important;
+        }
+    }
+}
