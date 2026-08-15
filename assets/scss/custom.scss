@@ -34,6 +34,28 @@ body {
     background-position: center center;
 }
 
+//引用块（灰色风格）
+.article-content blockquote {
+    border-color: #999;
+    background-color: rgba(128, 128, 128, 0.12);
+    color: #777;
+
+    [data-scheme="dark"] & {
+        color: #a0a0a0; //暗色下提亮文字保证可读性
+    }
+}
+
+//提示块标题（类型标注 + SVG 图标）
+.alert-header .alert-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+
+    svg {
+        fill: currentColor; //图标颜色跟随标题（--alert-{type}-color）
+    }
+}
+
 //毛玻璃效果和独立合成层，避免滤镜重绘卡顿
 .widget:not(.archives),
 .sidebar-inner,
@@ -103,25 +125,22 @@ kbd {
     scrollbar-color: rgba(128, 128, 128, 0.5) transparent;
 }
 
-//提示框（Alert）颜色变量
-// 使用循环生成亮/暗两种模式下的四个提示类型
-$alert-types: ( note: (light-sep: rgba(101, 187, 238, 0.5), light-bg: rgba(231, 242, 250, 0.5), dark-sep: rgba(0, 102, 153, 0.5), dark-bg: rgba(0, 34, 52, 0.5)), tip: (light-sep: rgba(85, 170, 85, 0.5), light-bg: rgba(238, 255, 238, 0.5), dark-sep: rgba(51, 103, 51, 0.5), dark-bg: rgba(17, 35, 16, 0.5)), warn: (light-sep: rgba(255, 187, 120, 0.5), light-bg: rgba(255, 238, 204, 0.5), dark-sep: rgba(170, 85, 1, 0.5), dark-bg: rgba(69, 35, 0, 0.5)), error: (light-sep: rgba(204, 51, 52, 0.5), light-bg: rgba(255, 238, 239, 0.5), dark-sep: rgba(136, 0, 0, 0.5), dark-bg: rgba(69, 0, 0, 0.5)) );
+//提示框（Alert）配色 —— Typora/GitHub 风格
+// 亮色模式使用 GitHub 亮色 alert 色值，暗色模式使用 GitHub 暗色同源色值
+$alert-light: (note: #0965da, tip: #1f883d, important: #8250df, warning: #9a6700, caution: #cf222e);
+$alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922, caution: #f85149);
 
 [data-scheme="light"] {
-    @each $type, $colors in $alert-types {
-        .alert-#{$type} {
-            --card-separator-color: map-get($colors, light-sep);
-            --blockquote-background-color: map-get($colors, light-bg);
-        }
+    @each $type, $color in $alert-light {
+        --alert-#{$type}-color: #{$color};
+        --alert-#{$type}-background: #{rgba($color, 0.08)};
     }
 }
 
 [data-scheme="dark"] {
-    @each $type, $colors in $alert-types {
-        .alert-#{$type} {
-            --card-separator-color: map-get($colors, dark-sep);
-            --blockquote-background-color: map-get($colors, dark-bg);
-        }
+    @each $type, $color in $alert-dark {
+        --alert-#{$type}-color: #{$color};
+        --alert-#{$type}-background: #{rgba($color, 0.15)};
     }
 }
 
