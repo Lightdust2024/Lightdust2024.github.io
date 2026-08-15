@@ -7,5 +7,3 @@ theme = "stack"
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
-[params]
-  cdnUrl = "https://cdn.jsdelivr.net/gh/Lightdust2024/Lightdust2024.github.io@main"

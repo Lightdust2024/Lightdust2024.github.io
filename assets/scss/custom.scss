@@ -34,23 +34,23 @@ body {
     background-position: center center;
 }
 
-// [优化] 毛玻璃效果（模糊层）- 添加 will-change 和独立合成层，避免滤镜重绘卡顿
+//毛玻璃效果和独立合成层，避免滤镜重绘卡顿
 .widget:not(.archives),
 .sidebar-inner,
 .pagination,
 .section {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    will-change: backdrop-filter, background-color, border-color; // [优化] 提前通知 GPU
-    transform: translateZ(0); // [优化] 强制 GPU 加速
-    backface-visibility: hidden; // [优化] 减少闪烁
+    will-change: backdrop-filter, background-color, border-color; //提前通知 GPU
+    transform: translateZ(0); //强制 GPU 加速
+    backface-visibility: hidden; //减少闪烁
 }
 
-// [优化] 文章内容毛玻璃（强度更高）
+//文章内容毛玻璃（强度更高）
 .article-content {
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    will-change: backdrop-filter, background-color, border-color; // [优化]
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    will-change: backdrop-filter, background-color, border-color;
     transform: translateZ(0);
     backface-visibility: hidden;
 }
@@ -148,8 +148,7 @@ $alert-types: ( note: (light-sep: rgba(101, 187, 238, 0.5), light-bg: rgba(231, 
     }
 }
 
-// [优化] 精细化过渡 - 仅作用于颜色/边框，移除了 box-shadow 和 backdrop-filter 过渡
-// 避免通配符 * 全量匹配，减少重绘成本
+//过渡动画
 :root,
 .widget:not(.archives),
 .sidebar-inner,
@@ -161,23 +160,15 @@ kbd,
 .highlight pre,
 .highlight table {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    // [优化] 明确不参与过渡的属性（默认继承，但这里显式排除 backdrop-filter）
-}
 
-// [优化] 切换时临时禁用过渡（配合 JS 使用 .no-transition 类）
-// 在 html 或 body 加上该类，切换瞬间所有过渡被禁止，避免滤镜卡顿
-.no-transition,
-.no-transition * {
-    transition: none !important;
-}
+    .no-transition,
+    .no-transition * {
+        transition: none !important;
+    }
 
-// [优化] 原有的全局过渡被删除，改为上述精细化控制
-// 原 * 选择器过渡已移除，防止意外性能开销
-
-// [优化] 保持原有 GPU 加速提示（已在毛玻璃处添加）
-// 以下为原样保留的 .bg-layer
-.bg-layer {
-    will-change: opacity;
-    transform: translateZ(0);
-    backface-visibility: hidden;
+    .bg-layer {
+        will-change: opacity;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
 }
