@@ -1,3 +1,120 @@
 <!-- layouts/partials/head/custom.html -->
-{{ $customJS := resources.Get "js/custom.js" | minify | fingerprint }}
+{{- $customJS := resources.Get "js/custom.js" | minify | fingerprint -}}
+{{- $lightBg := (resources.Get "img/background1.png").Process "webp q98" -}}
+{{- $darkBg := (resources.Get "img/background2.png").Process "webp q98" -}}
+<script>
+    // 背景图层在此内联脚本中创建，早于 defer 的 custom.js，
+    // 配合 preload 让背景图在页面加载时就位，避免闪屏
+    (function() {
+        const lightBg = '{{ $lightBg.RelPermalink }}';
+        const darkBg = '{{ $darkBg.RelPermalink }}';
+
+        // 已发起下载的背景图（去重）
+        const preloaded = new Set();
+
+        function preloadImage(src) {
+            if (preloaded.has(src)) return;
+            preloaded.add(src);
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = src;
+            document.head.appendChild(link);
+        }
+
+        // head 解析阶段立即下载当前主题的背景图（此时 data-scheme 已由 colorScheme 内联脚本设置）
+        const currentScheme = document.documentElement.getAttribute('data-scheme') || 'light';
+        preloadImage(currentScheme === 'dark' ? darkBg : lightBg);
+
+        function initBackground() {
+            // 等待 body 存在（body 背景会盖住 html 下的负 z-index 元素，必须挂在 body 内）
+            if (!document.body) {
+                requestAnimationFrame(initBackground);
+                return;
+            }
+
+            const bgContainer = document.createElement('div');
+            bgContainer.style.position = 'fixed';
+            bgContainer.style.top = '0';
+            bgContainer.style.left = '0';
+            bgContainer.style.width = '100%';
+            bgContainer.style.height = '100%';
+            bgContainer.style.zIndex = '-999';
+            bgContainer.style.pointerEvents = 'none';
+            // 加速整个容器
+            bgContainer.style.willChange = 'opacity';
+            bgContainer.style.transform = 'translateZ(0)';
+
+            // 创建时按当前主题直接设置初始状态（无动画），
+            // 避免暗色模式下加载页面时先闪亮色背景再动画切换
+            const isDark = (document.documentElement.getAttribute('data-scheme') || 'light') === 'dark';
+
+            const lightLayer = document.createElement('div');
+            Object.assign(lightLayer.style, {
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                backgroundImage: `url(${lightBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                transition: 'opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                opacity: isDark ? '0' : '1',
+                willChange: 'opacity',
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden'
+            });
+
+            const darkLayer = document.createElement('div');
+            Object.assign(darkLayer.style, {
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                backgroundImage: `url(${darkBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                transition: 'opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                opacity: isDark ? '1' : '0',
+                willChange: 'opacity',
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden'
+            });
+
+            bgContainer.appendChild(lightLayer);
+            bgContainer.appendChild(darkLayer);
+            document.body.prepend(bgContainer);
+
+            function updateBackground(scheme) {
+                requestAnimationFrame(() => {
+                    if (scheme === 'dark') {
+                        lightLayer.style.opacity = '0';
+                        darkLayer.style.opacity = '1';
+                    } else {
+                        lightLayer.style.opacity = '1';
+                        darkLayer.style.opacity = '0';
+                    }
+                });
+            }
+
+            // 监听主题切换，切换时预加载目标背景图，保证下次切换流畅
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'data-scheme') {
+                        const scheme = document.documentElement.getAttribute('data-scheme');
+                        updateBackground(scheme);
+                        preloadImage(scheme === 'dark' ? darkBg : lightBg);
+                    }
+                });
+            });
+            observer.observe(document.documentElement, { attributes: true });
+        }
+
+        initBackground();
+    })();
+</script>
 <script src="{{ $customJS.RelPermalink }}" defer></script>

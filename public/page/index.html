@@ -20,9 +20,123 @@
 <meta name="twitter:title" content="Pages">
 <meta name="twitter:description" content="Lightdust的个人博客"><link rel="alternate" type="application/rss&#43;xml" href="https://starter.stack.cai.im/page/index.xml">
     <link rel="shortcut icon" href="/img/avatar.png" />
+<script>
+    
+    
+    (function() {
+        const lightBg = '\/img\/background1_hu_7947853818aa9c7d.webp';
+        const darkBg = '\/img\/background2_hu_e39f1722f02f52d6.webp';
 
+        
+        const preloaded = new Set();
 
-<script src="/js/custom.min.48d1655c6d4aa55e807e3511adaac2001de3c39b41178dbe1f8c9c2d630260d0.js" defer></script>
+        function preloadImage(src) {
+            if (preloaded.has(src)) return;
+            preloaded.add(src);
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = src;
+            document.head.appendChild(link);
+        }
+
+        
+        const currentScheme = document.documentElement.getAttribute('data-scheme') || 'light';
+        preloadImage(currentScheme === 'dark' ? darkBg : lightBg);
+
+        function initBackground() {
+            
+            if (!document.body) {
+                requestAnimationFrame(initBackground);
+                return;
+            }
+
+            const bgContainer = document.createElement('div');
+            bgContainer.style.position = 'fixed';
+            bgContainer.style.top = '0';
+            bgContainer.style.left = '0';
+            bgContainer.style.width = '100%';
+            bgContainer.style.height = '100%';
+            bgContainer.style.zIndex = '-999';
+            bgContainer.style.pointerEvents = 'none';
+            
+            bgContainer.style.willChange = 'opacity';
+            bgContainer.style.transform = 'translateZ(0)';
+
+            
+            
+            const isDark = (document.documentElement.getAttribute('data-scheme') || 'light') === 'dark';
+
+            const lightLayer = document.createElement('div');
+            Object.assign(lightLayer.style, {
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                backgroundImage: `url(${lightBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                transition: 'opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                opacity: isDark ? '0' : '1',
+                willChange: 'opacity',
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden'
+            });
+
+            const darkLayer = document.createElement('div');
+            Object.assign(darkLayer.style, {
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                backgroundImage: `url(${darkBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                transition: 'opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                opacity: isDark ? '1' : '0',
+                willChange: 'opacity',
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden'
+            });
+
+            bgContainer.appendChild(lightLayer);
+            bgContainer.appendChild(darkLayer);
+            document.body.prepend(bgContainer);
+
+            function updateBackground(scheme) {
+                requestAnimationFrame(() => {
+                    if (scheme === 'dark') {
+                        lightLayer.style.opacity = '0';
+                        darkLayer.style.opacity = '1';
+                    } else {
+                        lightLayer.style.opacity = '1';
+                        darkLayer.style.opacity = '0';
+                    }
+                });
+            }
+
+            
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'data-scheme') {
+                        const scheme = document.documentElement.getAttribute('data-scheme');
+                        updateBackground(scheme);
+                        preloadImage(scheme === 'dark' ? darkBg : lightBg);
+                    }
+                });
+            });
+            observer.observe(document.documentElement, { attributes: true });
+        }
+
+        initBackground();
+    })();
+</script>
+<script src="/js/custom.min.7d8feab4f607a6bdba5ed57915fa4c402a47c5711a6226dd3538731a741e2772.js" defer></script>
+
     </head>
     <body class="">
     <script>
