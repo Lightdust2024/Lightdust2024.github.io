@@ -20,6 +20,8 @@
     }
 </style>
 
+
+
 <script>
     function initTocHide() {
         // 判断是否存在文章目录
@@ -54,4 +56,141 @@
         });
     }
     initTocHide()
+</script>
+
+
+<style>
+    .highlight {
+        /* 你可以根据需要调整这个高度 */
+        max-height: 400px;
+        overflow: hidden;
+    }
+
+    .code-show {
+        max-height: none !important;
+    }
+
+    .code-more-box {
+        width: 100%;
+        padding-top: 78px;
+        /* 渐变遮罩底色跟随代码块背景（--pre-background-color 按亮/暗模式切换）：
+           亮色 #fafafa / 暗色 #272822，与 .highlight 背景完全一致，避免渐隐处露色差 */
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--pre-background-color));
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+    }
+
+    .code-more-btn {
+        display: block;
+        margin: auto;
+        width: 44px;
+        height: 22px;
+        background: var(--card-background);
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        padding-top: 6px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .code-more-img {
+        cursor: pointer !important;
+        display: block;
+        margin: auto;
+        width: 22px;
+        height: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    /* ===== 展开状态：按钮改为文档流定位，紧贴代码内容底部，与折叠时一样吸附在代码块下边缘中央 ===== */
+    .highlight.code-show .code-more-box {
+        background: none;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        /* 脱离绝对定位：absolute 的 bottom:0 会把按钮带到容器底部，
+           与代码最后一行之间隔着内边距导致按钮悬浮；static 后按钮紧随代码内容，吸附在下边缘 */
+        position: static;
+    }
+
+    .highlight.code-show .code-more-btn {
+        border-radius: 8px;
+        height: 26px;
+    }
+
+    /* 收起图标 = 展开图标旋转 180° */
+    .highlight.code-show .code-more-img {
+        transform: rotate(180deg);
+    }
+
+    /* hover 反馈 */
+    .code-more-btn:hover {
+        filter: brightness(0.92);
+    }
+</style>
+
+<script>
+  // 主题切换时同步 dark-mode-toggle 的文字：
+  // 亮色模式显示「暗色模式」，暗色模式显示「亮色模式」
+  (function () {
+    var toggle = document.getElementById('dark-mode-toggle');
+    var label = toggle && toggle.querySelector('span');
+    if (!label) {
+      return;
+    }
+    // 从 i18n 读取两种模式的文案（Hugo 渲染时替换；
+    // 不要用 jsonify——会在 script 上下文中被二次转义成带引号的字符串）
+    var darkLabel = '{{ T "darkMode" }}';
+    var lightLabel = '{{ T "lightMode" }}';
+    var updateLabel = function (scheme) {
+      label.textContent = scheme === 'dark' ? lightLabel : darkLabel;
+    };
+    // 监听主题切换事件（StackColorScheme 切换后 dispatch）
+    window.addEventListener('onColorSchemeChange', function (e) {
+      updateLabel(e.detail);
+    });
+    // 初始化时同步一次，避免事件在监听注册前已派发
+    updateLabel(document.documentElement.getAttribute('data-scheme'));
+  })();
+</script>
+
+
+<script>
+  function initCodeMoreBox() {
+    let codeBlocks = document.querySelectorAll(".highlight");
+    if (!codeBlocks) {
+      return;
+    }
+    codeBlocks.forEach(codeBlock => {
+      // 校验是否overflow
+      if (codeBlock.scrollHeight <= codeBlock.clientHeight) {
+        return;
+      }
+      // 元素初始化
+      // codeMoreBox
+      let codeMoreBox = document.createElement('div');
+      codeMoreBox.classList.add('code-more-box');
+      // codeMoreBtn
+      let codeMoreBtn = document.createElement('span');
+      codeMoreBtn.classList.add('code-more-btn');
+      codeMoreBtn.addEventListener('click', () => {
+        // 展开 / 折叠切换
+        codeBlock.classList.toggle('code-show');
+        // 触发resize事件，重新计算目录位置
+        window.dispatchEvent(new Event('resize'))
+      })
+      // img
+      let img = document.createElement('img');
+      img.classList.add('code-more-img');
+      img.src = {{ (resources.Get "icons/codeMore.png").Permalink }}
+      // 元素添加
+      codeMoreBtn.appendChild(img);
+      codeMoreBox.appendChild(codeMoreBtn);
+      codeBlock.appendChild(codeMoreBox)
+    })
+  }
+
+  initCodeMoreBox();
 </script>

@@ -7,3 +7,9 @@ theme = "stack"
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+
+[frontmatter]
+  lastmod = [":git", ":fileModTime"]
+
+#允许获取Git信息
+enableGitInfo = true

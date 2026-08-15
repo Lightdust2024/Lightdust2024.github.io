@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-cn" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Lightdust的个人博客">
 <title>Tags</title>
 
 
-<link rel="canonical" href="https://starter.stack.cai.im/tags/">
+<link rel="canonical" href="http://localhost:1313/tags/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap">
@@ -14,11 +14,11 @@
 
 <link rel="stylesheet" href="/scss/style.min.c805fa659ec10b2bd0ea520f36c7de8410068ea93519c128e572f6df09806cd2.css"><meta property='og:title' content="Tags">
 <meta property='og:description' content="Lightdust的个人博客">
-<meta property='og:url' content='https://starter.stack.cai.im/tags/'>
+<meta property='og:url' content='http://localhost:1313/tags/'>
 <meta property='og:site_name' content='Lightdust'>
-<meta property='og:type' content='website'><meta property='og:updated_time' content=' 2026-08-10T00:00:00&#43;00:00 '/>
+<meta property='og:type' content='website'><meta property='og:updated_time' content=' 2026-08-15T21:42:17&#43;08:00 '/>
 <meta name="twitter:title" content="Tags">
-<meta name="twitter:description" content="Lightdust的个人博客"><link rel="alternate" type="application/rss&#43;xml" href="https://starter.stack.cai.im/tags/index.xml">
+<meta name="twitter:description" content="Lightdust的个人博客"><link rel="alternate" type="application/rss&#43;xml" href="http://localhost:1313/tags/index.xml">
     <link rel="shortcut icon" href="/img/avatar.png" />
 <script>
     
@@ -362,6 +362,14 @@
                     </a> 
                 </div>
             <div class="archives-year">
+                    <a href="/archives/#2025">
+                        
+                            <span class="year">2025</span>
+                            <span class="count">1</span>
+                        
+                    </a> 
+                </div>
+            <div class="archives-year">
                     <a href="/archives/#2023">
                         
                             <span class="year">2023</span>
@@ -435,7 +443,7 @@
             </main>
         </div>
         
-<script type="text/javascript" src="/ts/main.f856840516f7c2ad1769a8f5937e3d08d6cb386e2cd2dd025ae696e0ff207958.js" defer></script>
+<script type="text/javascript" src="/ts/main.27e8bd85a6582adee2865d129b874708b726ff0042a5b8f981722225b326253a.js" defer></script>
 <script src="https://npm.elemecdn.com/nprogress@0.2.0/nprogress.js" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://npm.elemecdn.com/nprogress@0.2.0/nprogress.css" crossorigin="anonymous" />
 <script>
@@ -457,6 +465,8 @@
         }
     }
 </style>
+
+
 
 <script>
     function initTocHide() {
@@ -492,6 +502,141 @@
         });
     }
     initTocHide()
+</script>
+
+
+<style>
+    .highlight {
+         
+        max-height: 400px;
+        overflow: hidden;
+    }
+
+    .code-show {
+        max-height: none !important;
+    }
+
+    .code-more-box {
+        width: 100%;
+        padding-top: 78px;
+         
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--pre-background-color));
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+    }
+
+    .code-more-btn {
+        display: block;
+        margin: auto;
+        width: 44px;
+        height: 22px;
+        background: var(--card-background);
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        padding-top: 6px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .code-more-img {
+        cursor: pointer !important;
+        display: block;
+        margin: auto;
+        width: 22px;
+        height: 16px;
+        transition: transform 0.3s ease;
+    }
+
+     
+    .highlight.code-show .code-more-box {
+        background: none;
+        padding-top: 8px;
+        padding-bottom: 8px;
+         
+        position: static;
+    }
+
+    .highlight.code-show .code-more-btn {
+        border-radius: 8px;
+        height: 26px;
+    }
+
+     
+    .highlight.code-show .code-more-img {
+        transform: rotate(180deg);
+    }
+
+     
+    .code-more-btn:hover {
+        filter: brightness(0.92);
+    }
+</style>
+
+<script>
+  
+  
+  (function () {
+    var toggle = document.getElementById('dark-mode-toggle');
+    var label = toggle && toggle.querySelector('span');
+    if (!label) {
+      return;
+    }
+    
+    
+    var darkLabel = '暗色模式';
+    var lightLabel = '亮色模式';
+    var updateLabel = function (scheme) {
+      label.textContent = scheme === 'dark' ? lightLabel : darkLabel;
+    };
+    
+    window.addEventListener('onColorSchemeChange', function (e) {
+      updateLabel(e.detail);
+    });
+    
+    updateLabel(document.documentElement.getAttribute('data-scheme'));
+  })();
+</script>
+
+
+<script>
+  function initCodeMoreBox() {
+    let codeBlocks = document.querySelectorAll(".highlight");
+    if (!codeBlocks) {
+      return;
+    }
+    codeBlocks.forEach(codeBlock => {
+      
+      if (codeBlock.scrollHeight <= codeBlock.clientHeight) {
+        return;
+      }
+      
+      
+      let codeMoreBox = document.createElement('div');
+      codeMoreBox.classList.add('code-more-box');
+      
+      let codeMoreBtn = document.createElement('span');
+      codeMoreBtn.classList.add('code-more-btn');
+      codeMoreBtn.addEventListener('click', () => {
+        
+        codeBlock.classList.toggle('code-show');
+        
+        window.dispatchEvent(new Event('resize'))
+      })
+      
+      let img = document.createElement('img');
+      img.classList.add('code-more-img');
+      img.src = "http://localhost:1313/icons/codeMore.png"
+      
+      codeMoreBtn.appendChild(img);
+      codeMoreBox.appendChild(codeMoreBtn);
+      codeBlock.appendChild(codeMoreBox)
+    })
+  }
+
+  initCodeMoreBox();
 </script>
 
 
