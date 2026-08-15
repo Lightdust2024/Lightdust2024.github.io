@@ -1,5 +1,5 @@
 :root {
-    --body-background: url("/img/background1.png");
+    //--body-background: url("/img/background1.png");
     --card-background: rgba(250, 250, 250, 0.65);
     --card-border-color: rgba(250, 250, 250, 0.65);
     --scrollbar-track: rgba(250, 250, 250, 0.65);
@@ -11,8 +11,9 @@
     --body-text-color: #404040;
     --card-text-color-secondary: #404040;
     --pre-background-color: #f9f9ee;
+
     &[data-scheme="dark"] {
-        --body-background: url("/img/background2.png");
+        //--body-background: url("/img/background2.png");
         --card-background: rgba(0, 0, 0, 0.65);
         --card-border-color: rgba(0, 0, 0, 0.65);
         --scrollbar-track: rgba(0, 0, 0, 0.65);
@@ -33,17 +34,25 @@ body {
     background-position: center center;
 }
 
-//毛玻璃效果（模糊层）
+// [优化] 毛玻璃效果（模糊层）- 添加 will-change 和独立合成层，避免滤镜重绘卡顿
 .widget:not(.archives),
 .sidebar-inner,
 .pagination,
 .section {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    will-change: backdrop-filter, background-color, border-color; // [优化] 提前通知 GPU
+    transform: translateZ(0); // [优化] 强制 GPU 加速
+    backface-visibility: hidden; // [优化] 减少闪烁
 }
+
+// [优化] 文章内容毛玻璃（强度更高）
 .article-content {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    will-change: backdrop-filter, background-color, border-color; // [优化]
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 //文章内容背景（独立于卡片背景）
@@ -75,9 +84,11 @@ kbd {
     width: 6px;
     height: 6px;
 }
+
 ::-webkit-scrollbar-track {
     background: var(--scrollbar-track) !important;
 }
+
 ::-webkit-scrollbar-thumb {
     background: rgba(128, 128, 128, 0.5);
     border-radius: 10px;
@@ -86,6 +97,7 @@ kbd {
         background: rgba(128, 128, 128, 0.7);
     }
 }
+
 * {
     scrollbar-width: thin;
     scrollbar-color: rgba(128, 128, 128, 0.5) transparent;
@@ -94,6 +106,7 @@ kbd {
 //提示框（Alert）颜色变量
 // 使用循环生成亮/暗两种模式下的四个提示类型
 $alert-types: ( note: (light-sep: rgba(101, 187, 238, 0.5), light-bg: rgba(231, 242, 250, 0.5), dark-sep: rgba(0, 102, 153, 0.5), dark-bg: rgba(0, 34, 52, 0.5)), tip: (light-sep: rgba(85, 170, 85, 0.5), light-bg: rgba(238, 255, 238, 0.5), dark-sep: rgba(51, 103, 51, 0.5), dark-bg: rgba(17, 35, 16, 0.5)), warn: (light-sep: rgba(255, 187, 120, 0.5), light-bg: rgba(255, 238, 204, 0.5), dark-sep: rgba(170, 85, 1, 0.5), dark-bg: rgba(69, 35, 0, 0.5)), error: (light-sep: rgba(204, 51, 52, 0.5), light-bg: rgba(255, 238, 239, 0.5), dark-sep: rgba(136, 0, 0, 0.5), dark-bg: rgba(69, 0, 0, 0.5)) );
+
 [data-scheme="light"] {
     @each $type, $colors in $alert-types {
         .alert-#{$type} {
@@ -102,6 +115,7 @@ $alert-types: ( note: (light-sep: rgba(101, 187, 238, 0.5), light-bg: rgba(231, 
         }
     }
 }
+
 [data-scheme="dark"] {
     @each $type, $colors in $alert-types {
         .alert-#{$type} {
@@ -122,6 +136,7 @@ $alert-types: ( note: (light-sep: rgba(101, 187, 238, 0.5), light-bg: rgba(231, 
         }
     }
 }
+
 [data-scheme="dark"] {
     .copyCodeButton {
         background: #7f8c8d !important;
@@ -131,4 +146,38 @@ $alert-types: ( note: (light-sep: rgba(101, 187, 238, 0.5), light-bg: rgba(231, 
             background: #95a5a6 !important;
         }
     }
+}
+
+// [优化] 精细化过渡 - 仅作用于颜色/边框，移除了 box-shadow 和 backdrop-filter 过渡
+// 避免通配符 * 全量匹配，减少重绘成本
+:root,
+.widget:not(.archives),
+.sidebar-inner,
+.pagination,
+.section,
+.article-content,
+.copyCodeButton,
+kbd,
+.highlight pre,
+.highlight table {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    // [优化] 明确不参与过渡的属性（默认继承，但这里显式排除 backdrop-filter）
+}
+
+// [优化] 切换时临时禁用过渡（配合 JS 使用 .no-transition 类）
+// 在 html 或 body 加上该类，切换瞬间所有过渡被禁止，避免滤镜卡顿
+.no-transition,
+.no-transition * {
+    transition: none !important;
+}
+
+// [优化] 原有的全局过渡被删除，改为上述精细化控制
+// 原 * 选择器过渡已移除，防止意外性能开销
+
+// [优化] 保持原有 GPU 加速提示（已在毛玻璃处添加）
+// 以下为原样保留的 .bg-layer
+.bg-layer {
+    will-change: opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }

@@ -1,0 +1,3 @@
+<!-- layouts/partials/head/custom.html -->
+{{ $customJS := resources.Get "js/custom.js" | minify | fingerprint }}
+<script src="{{ $customJS.RelPermalink }}" defer></script>
