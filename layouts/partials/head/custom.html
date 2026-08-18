@@ -1,7 +1,7 @@
 <!-- layouts/partials/head/custom.html -->
 {{- $customJS := resources.Get "js/custom.js" | minify | fingerprint -}}
-{{- $lightBg := (resources.Get "img/background1.png").Process "webp q98" -}}
-{{- $darkBg := (resources.Get "img/background2.png").Process "webp q98" -}}
+{{- $lightBg := (resources.Get "img/background1.png").Process "webp q100" -}}
+{{- $darkBg := (resources.Get "img/background2.png").Process "webp q100" -}}
 <script>
     // 背景图层在此内联脚本中创建，早于 defer 的 custom.js，
     // 配合 preload 让背景图在页面加载时就位，避免闪屏

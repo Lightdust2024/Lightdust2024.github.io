@@ -21,7 +21,7 @@ Params:
         {{- $h := mul $height . -}}
         {{- if and (le $w $resource.Width) (le $h $resource.Height) -}}
             {{/* 缩略图转 WebP 并压缩（与背景图方案一致） */}}
-            {{- $resized := $resource.Fill (printf "%dx%d webp q90" $w $h) -}}
+            {{- $resized := $resource.Fill (printf "%dx%d webp q100" $w $h) -}}
             {{- $srcset = $srcset | append (printf "%s %dx" $resized.RelPermalink .) -}}
 
             {{- if eq . 1 -}}

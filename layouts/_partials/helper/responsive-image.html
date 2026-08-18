@@ -14,7 +14,7 @@ Params:
     {{- range $widths -}}
         {{- if lt . $resource.Width -}}
             {{/* 各宽度候选转 WebP 并压缩（与背景图方案一致） */}}
-            {{- $resized := $resource.Resize (printf "%dx webp q90" .) -}}
+            {{- $resized := $resource.Resize (printf "%dx webp q100" .) -}}
             {{- $srcset = $srcset | append (printf "%s %dw" $resized.RelPermalink .) -}}
         {{- end -}}
     {{- end -}}
@@ -22,7 +22,7 @@ Params:
     {{- if gt (len $srcset) 0 -}}
         {{/* 全尺寸原图同样转 WebP，作为 srcset 最大候选和 src 兜底，
             避免浏览器回退到原始 PNG 大文件 */}}
-        {{- $full := $resource.Process "webp q90" -}}
+        {{- $full := $resource.Process "webp q100" -}}
         {{- $srcset = $srcset | append (printf "%s %dw" $full.RelPermalink $resource.Width) -}}
         {{- $attributes = merge $attributes (dict "src" $full.RelPermalink "srcset" (delimit $srcset ", ")) -}}
     {{- end -}}

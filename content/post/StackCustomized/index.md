@@ -1,6 +1,6 @@
 ---
 title: "Hugo Stack 主题个性化实践记录"
-description: "本博客 hugo-theme-stack v4 主题全部个性化定制的完整实践记录：明暗双背景无闪屏切换、毛玻璃卡片、GitHub 风格 Alert 提示块、长代码块展开收起、TOC 滚动折叠、构建期 WebP 压缩与 GitHub Actions 部署，所有代码与仓库一致，可直接照抄。"
+description: "本文是本博客个性化定制的记录，使用deepseek复盘并构建文档，涵盖样式、交互与性能优化"
 slug: StackCustomized
 date: 2026-08-18 15:03:02+08:00
 image: cover.png
@@ -9,15 +9,11 @@ draft: true
 
 # Hugo Stack 主题个性化实践记录
 
-> 本文是本博客（hugo-theme-stack v4.0.3）全部个性化定制的实践记录，涵盖样式、交互与性能优化。所有代码均与仓库实际文件逐字节一致，标注了来源路径，可直接照抄；每一节都附有实际踩过的坑与解决方案。
-
----
-
 ## 写在前面
 
-这篇文章最初是一篇"方法展示"型笔记，自称"仅作方法展示，实际代码可能会有所不同"。写完之后发现一个问题：示例代码与真实实现之间的出入，恰恰是踩坑最多的地方——而它们才是最有价值的部分。于是基于仓库现状重写，改为实践记录。
+本文客制化的记录，记录了我遇到的问题以及踩过的坑，使用deepseek复盘构建文档，作方法展示，实际代码可能会有所不同
 
-本文全部定制遵循一个核心原则：**不修改 `themes/stack` 主题源码**，只通过 Hugo 的同名覆写机制，在站点根目录的 `layouts/`、`assets/`、`i18n/`、`config/` 中覆盖主题行为。这样升级主题时不会冲突，也能清楚地看到"哪些是我的代码"。
+本文全部定制遵循一个核心原则：**不修改 `themes/stack` 主题源码**，只通过 Hugo 的同名覆写机制，在站点根目录的 `layouts/`、`assets/`、`i18n/`、`config/` 中覆盖主题行为。避免了升级主题时的冲突问题，也能清楚的了解自己对哪些内容进行了客制化。
 
 ### 客制化总览
 
@@ -54,33 +50,35 @@ Hugo 查找 `layouts/`、`assets/`、`i18n/` 中的文件时，**站点根目录
 
 ```
 layouts/
-├── _default/
-│   └── _markup/
-│       └── render-blockquote-alert.html   # 覆写 Hugo 渲染钩子：Alert 提示块
-├── _partials/
-│   └── helper/
-│       ├── responsive-image.html          # 覆写主题 partial：响应式图片（WebP）
-│       └── thumbnail-image.html           # 覆写主题 partial：缩略图（WebP）
-└── partials/
-    ├── head/custom.html                   # 双背景图层 + 无闪屏切换
-    └── footer/custom.html                 # 进度条 / 代码折叠 / TOC 联动 / 文案修复
+├─ _default/
+│   └─ _markup/
+│       └─ render-blockquote-alert.html   # 覆写 Hugo 渲染钩子：Alert 提示块
+├─ _partials/
+│   └─ helper/
+│       ├─ responsive-image.html          # 覆写主题 partial：响应式图片（WebP）
+│       └─ thumbnail-image.html           # 覆写主题 partial：缩略图（WebP）
+└─ partials/
+    ├─ head/custom.html                   # 双背景图层 + 无闪屏切换
+    └─ footer/custom.html                 # 进度条 / 代码折叠 / TOC 联动 / 文案修复
 assets/
-├── js/custom.js                           # 切换主题时禁用毛玻璃过渡
-├── scss/custom.scss                       # 全部自定义样式（CSS 变量 + 毛玻璃 + 配色）
-├── img/                                   # background1/2.png（明暗壁纸）、avatar.png
-└── icons/codeMore.png                     # 代码块展开按钮图标
+├─ js/custom.js                           # 切换主题时禁用毛玻璃过渡
+├─ scss/custom.scss                       # 全部自定义样式（CSS 变量 + 毛玻璃 + 配色）
+├─ img/                                   # background1/2.png（明暗壁纸）、avatar.png
+└─ icons/codeMore.png                     # 代码块展开按钮图标
 i18n/
-└── zh.toml                                # 覆盖主题翻译（修复按钮文案）
-config/_default/                           # 7 个分拆配置文件
+└─ zh.toml                                # 覆盖主题翻译（修复按钮文案）
+config/_default/                          # 7 个分拆配置文件
 ```
 
 ### 验证方法
 
-写入测试代码，运行本地服务器，若背景变灰则说明 SCSS 加载成功：
+写入测试代码：
 
 ```scss
 :root { --body-background: #f0f0f0; }
 ```
+
+然后在博客根目录打开终端，运行本地服务器，若背景变灰则说明 SCSS 加载成功：
 
 ```bash
 hugo server -D   # 本站文章是草稿，必须加 -D（--buildDrafts）才会渲染
@@ -93,13 +91,9 @@ hugo server -D   # 本站文章是草稿，必须加 -D（--buildDrafts）才会
 
 ## 明暗双背景图层：无闪屏切换
 
-### 做了什么
-
-亮色/暗色模式各使用一张壁纸（`assets/img/background1.png`、`background2.png`，原图各约 3.2MB），切换主题时两张图层做 0.3s 的 opacity 交叉渐变，而不是瞬间替换背景。
-
 ### 为什么不用 CSS 背景图
 
-Stack 主题支持通过 `--body-background` 变量直接设置背景图片，但 `background-image` 不支持渐变过渡——切换主题时背景会"啪"地跳变。用两个固定定位的绝对图层叠在一起，只过渡 `opacity`，是最简单可靠的做法。
+Stack 主题支持通过 `--body-background` 变量直接设置背景图片，但 `background-image` 不支持渐变过渡——切换主题时背景会"啪"地跳变。最简单可靠的做法是用两个壁纸图层（`background1.png`、`background2.png`）叠在一起，切换主题时两张图层做 0.3s 的 opacity 交叉渐变。
 
 ### 实现
 
@@ -108,8 +102,8 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
 ```html
 <!-- layouts/partials/head/custom.html -->
 {{- $customJS := resources.Get "js/custom.js" | minify | fingerprint -}}
-{{- $lightBg := (resources.Get "img/background1.png").Process "webp q98" -}}
-{{- $darkBg := (resources.Get "img/background2.png").Process "webp q98" -}}
+{{- $lightBg := (resources.Get "img/background1.png").Process "webp q100" -}}
+{{- $darkBg := (resources.Get "img/background2.png").Process "webp q100" -}}
 <script>
     // 背景图层在此内联脚本中创建，早于 defer 的 custom.js，
     // 配合 preload 让背景图在页面加载时就位，避免闪屏
@@ -230,15 +224,15 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
 
 要点拆解：
 
-1. **构建期压缩**：`(resources.Get "img/background1.png").Process "webp q98"` 在构建时把 3.2MB 的 PNG 转成 WebP，产物体积大幅下降，且不用在运行时处理图片。
+1. **构建期压缩**：`(resources.Get "img/background1.png").Process "webp q100"` 在构建时把 3.2MB 的 PNG 转成 WebP，产物体积大幅下降，且不用在运行时处理图片。
 2. **必须挂在 body 内**：容器用了 `z-index: -999`，如果挂在 `html` 下，会被 body 的背景色盖住。代码里用 `requestAnimationFrame` 轮询等待 body 存在。
 3. **初始状态无动画**：创建图层时直接按当前 `data-scheme` 设置 opacity——暗色用户刷新页面时，亮色图层一开始就是透明的，不会先闪一下亮色背景再渐变过去。
 4. **切换预加载**：`MutationObserver` 监听 `html` 的 `data-scheme` 变化，切换图层的同时 preload 目标背景图，保证下一次来回切换时有缓存。
 
 ### 踩过的坑
 
-- **暗色模式加载闪白**（提交 2fc3d93）：背景图层的创建逻辑最初放在 `defer` 加载的 `custom.js` 里，页面解析完成才执行，暗色用户打开页面会先看到亮色背景。修复方式就是上面这段——把逻辑搬进 `head` 里的内联脚本，配合 `preload`，在页面解析早期就让背景图就位。
-- **背景图太大**：最初直接把 3.3MB 的 PNG 放进 `static/`，后来迁移到 `assets/img/` 启用 Hugo 图片处理管道（见上面第 1 点）。
+- **暗色模式加载闪白**：背景图层的创建逻辑最初放在 `defer` 加载的 `custom.js` 里，页面解析完成才执行，暗色用户打开页面会先看到亮色背景。修复方式就是上面这段——把逻辑搬进 `head` 里的内联脚本，配合 `preload`，在页面解析早期就让背景图就位。
+- **背景图太大**：最初直接把 3.2MB 的 PNG 放进 `static/`，后来迁移到 `assets/img/` 启用 Hugo 图片处理管道（见上方要点解析第 1 点）。
 
 ---
 
@@ -437,7 +431,7 @@ kbd,
 
 ### 踩过的坑
 
-- **表格亮暗显示不一致**（提交 83f3ce6）：最初亮色 `#999999` / 暗色 `#404040`，暗色模式下边框几乎不可见；斑马纹 `rgba(200,200,200,0.2)` 又偏亮刺眼。改为亮暗**统一**的中性灰（`#676767` / `rgba(128,128,128,0.3)`）后，两种模式下观感一致。
+- **表格亮暗显示不一致**：最初亮色 `#999999` / 暗色 `#404040`，暗色模式下边框几乎不可见；斑马纹 `rgba(200,200,200,0.2)` 又偏亮刺眼。改为亮暗**统一**的中性灰（`#676767` / `rgba(128,128,128,0.3)`）后，两种模式下观感一致（我就说67是宇宙终极数字）。
 
 其余样式细节：
 
@@ -518,6 +512,25 @@ kbd {
 
 两种引用样式：普通引用块统一为灰色系；GitHub 风格的提示块（`> [!note]` 等）带图标与彩色标题。
 
+### 现场效果
+
+>本站的灰色引用块是scss自定义的。
+
+> [!note]
+> 这是一个提示块，用于提供补充说明。
+
+> [!tip]
+> 这是一个技巧块，用于分享最佳实践或小窍门。
+
+> [!important]
+> 这是一个重要块，用于强调关键信息。
+
+> [!warning]
+> 这是一个警告块，用于提醒潜在风险。
+
+> [!caution]
+> 这是一个警示块，用于警告可能导致严重后果的操作。
+
 ### 灰色引用块
 
 文件：`assets/scss/custom.scss`（第 37-46 行）
@@ -534,6 +547,8 @@ kbd {
     }
 }
 ```
+
+
 
 ### Alert 提示块：渲染钩子覆写
 
@@ -561,7 +576,7 @@ Hugo 0.14x+ 原生支持 GitHub 风格 alert 语法（`> [!note]`、`> [!tip]`�
 ```
 
 > [!note]
-> 模板里 5 个图标各是 500+ 字符的整行内联 SVG，行号模式下会撑出超长滚动条。上面只完整展示 `note` 一个，其余（`tip` / `important` / `warning` / `caution`）都是同风格的 Octicons 图标，直接复制仓库文件即可。
+> 模板里 5 个图标各是 500+ 字符的整行内联 SVG，行号模式下会撑出超长滚动条。上面只完整展示 `note` 一个，其余（`tip` / `important` / `warning` / `caution`）都是同风格的 Octicons 图标，直接复制[仓库文件](https://github.com/Lightdust2024/Lightdust2024.github.io/blob/main/layouts/_default/_markup/render-blockquote-alert.html)即可。
 
 ### Alert 配色
 
@@ -606,11 +621,6 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
     }
 }
 ```
-
-### 现场效果
-
-> [!warning]
-> 本站的提示块就是上面覆写的渲染钩子生成的。你在浏览这篇文章时看到的这个橙色「Warning」块、以及前面那个蓝色「Note」块，都是这套实现的现场效果。
 
 ---
 
@@ -964,11 +974,11 @@ lightMode = "亮色模式"
 
 ### 问题
 
-封面原图是 4-6MB 的 PNG（如本站文章封面 `cover.png` 4.4MB、`cover.jpg` 之外还有 6MB 级别的历史图），每次加载封面都要下载几 MB，移动端体验很差。
+封面原图是 4-6MB 的 PNG（如本文章封面 `cover.png` 5.73MB），每次加载封面都要下载几 MB，体验很差。
 
 ### 做法
 
-覆写主题的两个图片渲染 partial，在**构建期**把所有封面、正文图片、缩略图统一转成 WebP（质量 q90），而不是在浏览器端压缩。
+覆写主题的两个图片渲染 partial，在**构建期**把所有封面、正文图片、缩略图统一转成 WebP（质量 q100），而不是在浏览器端压缩。
 
 文件：`layouts/_partials/helper/responsive-image.html`（全文，用于封面与正文图片）
 
@@ -989,7 +999,7 @@ Params:
     {{- range $widths -}}
         {{- if lt . $resource.Width -}}
             {{/* 各宽度候选转 WebP 并压缩（与背景图方案一致） */}}
-            {{- $resized := $resource.Resize (printf "%dx webp q90" .) -}}
+            {{- $resized := $resource.Resize (printf "%dx webp q100" .) -}}
             {{- $srcset = $srcset | append (printf "%s %dw" $resized.RelPermalink .) -}}
         {{- end -}}
     {{- end -}}
@@ -997,7 +1007,7 @@ Params:
     {{- if gt (len $srcset) 0 -}}
         {{/* 全尺寸原图同样转 WebP，作为 srcset 最大候选和 src 兜底，
             避免浏览器回退到原始 PNG 大文件 */}}
-        {{- $full := $resource.Process "webp q90" -}}
+        {{- $full := $resource.Process "webp q100" -}}
         {{- $srcset = $srcset | append (printf "%s %dw" $full.RelPermalink $resource.Width) -}}
         {{- $attributes = merge $attributes (dict "src" $full.RelPermalink "srcset" (delimit $srcset ", ")) -}}
     {{- end -}}
@@ -1036,7 +1046,7 @@ Params:
         {{- $h := mul $height . -}}
         {{- if and (le $w $resource.Width) (le $h $resource.Height) -}}
             {{/* 缩略图转 WebP 并压缩（与背景图方案一致） */}}
-            {{- $resized := $resource.Fill (printf "%dx%d webp q90" $w $h) -}}
+            {{- $resized := $resource.Fill (printf "%dx%d webp q100" $w $h) -}}
             {{- $srcset = $srcset | append (printf "%s %dx" $resized.RelPermalink .) -}}
 
             {{- if eq . 1 -}}
@@ -1060,13 +1070,13 @@ Params:
 要点拆解：
 
 1. **调用链**：主题的 `themes/stack/layouts/_partials/article/components/header.html` 渲染封面时调用 `helper/responsive-image`，`render-image.html` 渲染正文图片，列表页的 list/compact/tile 布局调用 `helper/thumbnail-image` 渲染缩略图——覆写这两个 partial 就全部覆盖了。
-2. **响应式候选**：`responsive-image` 按主题默认宽度候选（`themes/stack/config/_default/params.toml` 的 `imageProcessing.content.widths = [800, 1600, 2400]`）生成 srcset，每个候选都是 `Resize "Wx webp q90"`。
-3. **src 兜底防回退**：最容易踩的坑——原主题的 `src` 直接指向原始 PNG。浏览器在 srcset 全部加载失败（或没命中）时会回退到 `src`，如果 `src` 还是 4.4MB 的原始 PNG，前面的压缩就白做了。所以最大候选和 `src` 都用 `Process "webp q90"` 生成的全尺寸 WebP。
-4. **缩略图**：`thumbnail-image` 的 1x/2x 候选改为 `Fill "WxH webp q90"`。
+2. **响应式候选**：`responsive-image` 按主题默认宽度候选（`themes/stack/config/_default/params.toml` 的 `imageProcessing.content.widths = [800, 1600, 2400]`）生成 srcset，每个候选都是 `Resize "Wx webp 100"`。
+3. **src 兜底防回退**：最容易踩的坑——原主题的 `src` 直接指向原始 PNG。浏览器在 srcset 全部加载失败（或没命中）时会回退到 `src`，如果 `src` 还是 4.4MB 的原始 PNG，前面的压缩就白做了。所以最大候选和 `src` 都用 `Process "webp q100"` 生成的全尺寸 WebP。
+4. **缩略图**：`thumbnail-image` 的 1x/2x 候选改为 `Fill "WxH webp q100"`。
 
 ### 效果
 
-封面从 4.4MB / 6MB 降至约 **154KB / 205KB**（提交 8eaa390），约缩小 97%。构建产物验证：`resources/_gen/images/p/` 下每个封面都有多尺寸 WebP 候选文件。
+封面从 4.22MB / 5.73MB 降至约 **150KB / 200KB**，约缩小 96.5%。构建产物验证：`resources/_gen/images/p/` 下每个封面都有多尺寸 WebP 候选文件。
 
 ---
 
@@ -1240,7 +1250,7 @@ jobs:
 
 ### 折腾史：jsDelivr 的尝试与放弃
 
-本站曾试图用 jsDelivr 免费 CDN 加速 GitHub Pages 上的静态资源：把 `public/` 构建产物提交进仓库，通过 `cdn.jsdelivr.net/gh/用户名/仓库@分支/` 的形式引用资源（提交 47a223e）。最终因为两个原因放弃（提交 c61a452）：
+我曾试图用 jsDelivr 免费 CDN 加速 GitHub Pages 上的静态资源：把 `public/` 构建产物提交进仓库，通过 `cdn.jsdelivr.net/gh/用户名/仓库@分支/` 的形式引用资源（提交 47a223e）。最终因为两个原因放弃（提交 c61a452）：
 
 1. **构建产物进版本库**：每次构建都要提交 `public/`，提交历史被产物污染，无法审查 diff；
 2. **一致性风险**：CDN 缓存与仓库不同步时，线上会引用到旧资源。
@@ -1258,8 +1268,10 @@ jobs:
 
 ## 参考资源
 
+- [Stack 主题个性化配置指南](https://smallstep.one/hugo-stack-config/)
 - [Stack 4.0 CSS 变量完整参考](https://smallstep.one/hugo-stack-css-variables/)
 - [custom.scss 定制教程](https://smallstep.one/hugo-stack-custom-style/)
 - [Stack 主题官方仓库](https://github.com/CaiJimmy/hugo-theme-stack)
 - [主题美化案例](https://liu-houliang.github.io/hugo-stack-starter/en/post/theme-customization/)
+- [Stack主题自定义修改](https://letere-gzj.github.io/hugo-stack/p/hugo/custom-stack-theme/)
 - [本博客源码仓库](https://github.com/Lightdust2024/myblog)
