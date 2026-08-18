@@ -1,10 +1,9 @@
 ---
-title: "Hugo Stack 主题个性化实践记录"
-description: "本文是本博客个性化定制的记录，使用deepseek复盘并构建文档，涵盖样式、交互与性能优化"
+title: Hugo Stack 主题个性化实践记录
+description: 本文是本博客个性化定制的记录，使用deepseek复盘并构建文档，涵盖样式、交互与性能优化
 slug: StackCustomized
 date: 2026-08-18 15:03:02+08:00
 image: cover.png
-draft: true
 ---
 
 # Hugo Stack 主题个性化实践记录
