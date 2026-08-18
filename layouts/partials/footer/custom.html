@@ -184,7 +184,7 @@
       // img
       let img = document.createElement('img');
       img.classList.add('code-more-img');
-      img.src = {{ (resources.Get "icons/codeMore.png").Permalink }}
+      img.src = {{ (resources.Get "icons/codeMore.png").RelPermalink }}
       // 元素添加
       codeMoreBtn.appendChild(img);
       codeMoreBox.appendChild(codeMoreBtn);
