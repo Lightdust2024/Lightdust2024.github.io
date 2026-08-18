@@ -3,8 +3,8 @@
     --card-background: rgba(250, 250, 250, 0.65);
     --card-border-color: rgba(250, 250, 250, 0.65);
     --scrollbar-track: rgba(250, 250, 250, 0.65);
-    --table-border-color: #999999;
-    --tr-even-background-color: rgba(0, 0, 0, 0.2);
+    --table-border-color: #676767;
+    --tr-even-background-color: rgba(128, 128, 128, 0.3);
     --blockquote-background-color: rgba(0, 0, 0, 0.2);
     --code-text-color: #606060;
     --code-background-color: #75757550;
@@ -17,8 +17,8 @@
         --card-background: rgba(0, 0, 0, 0.65);
         --card-border-color: rgba(0, 0, 0, 0.65);
         --scrollbar-track: rgba(0, 0, 0, 0.65);
-        --table-border-color: #404040;
-        --tr-even-background-color: rgba(200, 200, 200, 0.2);
+        --table-border-color: #676767;
+        --tr-even-background-color: rgba(128, 128, 128, 0.3);
         --blockquote-background-color: rgba(250, 250, 250, 0.1);
         --code-text-color: #909090;
         --code-background-color: #75757550;
@@ -34,25 +34,25 @@ body {
     background-position: center center;
 }
 
-//引用块（灰色风格）
+//引用块（灰色）
 .article-content blockquote {
     border-color: #999;
     background-color: rgba(128, 128, 128, 0.12);
     color: #777;
 
     [data-scheme="dark"] & {
-        color: #a0a0a0; //暗色下提亮文字保证可读性
+        color: #a0a0a0;
     }
 }
 
-//提示块标题（类型标注 + SVG 图标）
+//提示块标题
 .alert-header .alert-title {
     display: inline-flex;
     align-items: center;
     gap: 0.4em;
 
     svg {
-        fill: currentColor; //图标颜色跟随标题（--alert-{type}-color）
+        fill: currentColor;
     }
 }
 
@@ -126,7 +126,7 @@ kbd {
 }
 
 //提示框（Alert）配色 —— Typora/GitHub 风格
-// 亮色模式使用 GitHub 亮色 alert 色值，暗色模式使用 GitHub 暗色同源色值
+//亮色模式使用 GitHub 亮色 alert 色值，暗色模式使用 GitHub 暗色同源色值
 $alert-light: (note: #0965da, tip: #1f883d, important: #8250df, warning: #9a6700, caution: #cf222e);
 $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922, caution: #f85149);
 
