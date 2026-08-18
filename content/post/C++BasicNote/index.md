@@ -3,7 +3,7 @@ title: C++入门学习
 description: 基础学习笔记，八章内容，包含基础、数据类型、运算符、程序流式结构、数组、函数、指针、结构体
 slug: C++BasicNote
 date: 2026-07-21T21:13:07+08:00
-image: 1.png
+image: cover.png
 categories:
     - 语言学习
 tags:
