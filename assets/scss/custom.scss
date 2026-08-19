@@ -191,3 +191,14 @@ kbd,
         backface-visibility: hidden;
     }
 }
+
+//主题切换按钮：字重统一
+//主题 sidebar.scss 在暗色模式下给按钮整体加了 font-weight: 700（配合 accent 色），
+//亮色模式则未设置字重——按钮文案随模式切换（「暗色模式」↔「亮色模式」），
+//导致暗色模式下显示的「亮色模式」比亮色模式下的「暗色模式」更粗，这里覆写为统一字重。
+//注意要覆盖到 [data-scheme="dark"] 的高特异性选择器；
+//custom.scss 在主题 style.scss 末尾 import，同特异性下后定义者生效
+#dark-mode-toggle,
+[data-scheme="dark"] #dark-mode-toggle {
+    font-weight: 400;
+}

@@ -24,7 +24,7 @@ image: cover.png
 | 灰色引用块 + GitHub 风格 Alert 提示块 | `layouts/_default/_markup/render-blockquote-alert.html`、`assets/scss/custom.scss` |
 | 长代码块展开/收起按钮 | `layouts/partials/footer/custom.html` |
 | 目录（TOC）滚动联动折叠 | `layouts/partials/footer/custom.html` |
-| 主题切换按钮文案修复 | `i18n/zh.toml`、`layouts/partials/footer/custom.html` |
+| 主题切换按钮文案与字重统一 | `i18n/zh.toml`、`layouts/partials/footer/custom.html`、`assets/scss/custom.scss` |
 | NProgress 页面加载进度条 | `layouts/partials/footer/custom.html` |
 | 封面/缩略图构建期自动转 WebP | `layouts/_partials/helper/responsive-image.html`、`layouts/_partials/helper/thumbnail-image.html` |
 | 链接结构、TOC 层级、数学公式、Git lastmod | `config/_default/`、`hugo.toml` |
@@ -966,7 +966,7 @@ lightMode = "亮色模式"
 
 第二步，在 footer 里监听主题切换事件，用 Hugo 的 `{{ T }}` 在渲染时替换文案：
 
-文件：`layouts/partials/footer/custom.html`（第 134-157 行）
+文件：`layouts/partials/footer/custom.html`（第 154-177 行）
 
 ```html
 <script>
@@ -1000,6 +1000,7 @@ lightMode = "亮色模式"
 - **文案写死在 JS 里不优雅且不可翻译**——用 `{{ T "darkMode" }}` 走 Hugo 的 i18n 系统，翻译管理统一。
 - **`jsonify` 二次转义**：注释里特意警告不要用 `jsonify` 输出文案——它会在 script 上下文中把字符串再包一层引号，渲染出的 JS 变成带引号的字面量，`label.textContent` 会显示成「"暗色模式"」。
 - **事件早于监听注册**：`onColorSchemeChange` 在初始化切换时可能已经派发过一次，所以脚本执行时先手动同步一次当前 `data-scheme`，避免按钮文案停留在默认值。
+- **暗色模式下按钮文字更粗**：文案修好后按钮会随模式显示「暗色模式」/「亮色模式」，但主题 `sidebar.scss` 在 `[data-scheme="dark"]` 下给 `#dark-mode-toggle` 加了 `font-weight: 700`（配合 accent 色），亮色模式则未设置字重——于是暗色模式下显示的「亮色模式」比亮色模式下显示的「暗色模式」更粗。修复：在 `assets/scss/custom.scss`（第 195-205 行）用相同特异性的 `[data-scheme="dark"] #dark-mode-toggle` 覆写为 `font-weight: 400`。能生效依赖编译顺序：主题 `style.scss` 最后一行 `@import "custom.scss"`，同特异性下后定义者生效。
 
 ---
 
