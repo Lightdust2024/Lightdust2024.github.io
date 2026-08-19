@@ -643,7 +643,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 ### 样式
 
-文件：`layouts/partials/footer/custom.html`（第 62-132 行）
+文件：`layouts/partials/footer/custom.html`（第 62-152 行）
 
 ```html
 <style>
@@ -651,6 +651,8 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
         /* 你可以根据需要调整这个高度 */
         max-height: 400px;
         overflow: hidden;
+        /* 展开/收起时的高度过渡动画（配合 JS 动态设置 height，实现平滑伸长/缩短） */
+        transition: height 0.3s ease;
     }
 
     .code-show {
@@ -660,14 +662,27 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
     .code-more-box {
         width: 100%;
         padding-top: 78px;
-        /* 渐变遮罩底色跟随代码块背景（--pre-background-color 按亮/暗模式切换）：
-           亮色 #fafafa / 暗色 #272822，与 .highlight 背景完全一致，避免渐隐处露色差 */
-        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--pre-background-color));
         position: absolute;
         left: 0;
         right: 0;
         bottom: 0;
         z-index: 1;
+    }
+
+    /* 渐变遮罩独立为伪元素：展开时淡出、折叠时淡入 */
+    .code-more-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* 渐变遮罩底色跟随代码块背景（--pre-background-color 按亮/暗模式切换）：
+           亮色 #fafafa / 暗色 #272822，与 .highlight 背景完全一致，避免渐隐处露色差 */
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--pre-background-color));
+        opacity: 1;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
     }
 
     .code-more-btn {
@@ -702,6 +717,11 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
         position: static;
     }
 
+    /* 展开时渐变遮罩淡出（配合高度过渡，避免遮罩瞬间消失） */
+    .highlight.code-show .code-more-box::before {
+        opacity: 0;
+    }
+
     .highlight.code-show .code-more-btn {
         border-radius: 8px;
         height: 26px;
@@ -721,7 +741,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 ### 脚本
 
-文件：`layouts/partials/footer/custom.html`（第 160-196 行）
+文件：`layouts/partials/footer/custom.html`（第 180-253 行）
 
 ```html
 <script>
@@ -742,16 +762,53 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
       // codeMoreBtn
       let codeMoreBtn = document.createElement('span');
       codeMoreBtn.classList.add('code-more-btn');
+      // 折叠态高度（每次展开时从 CSS 读取记录）；folding 标记折叠动画进行中
+      let foldHeight = '';
+      let folding = false;
       codeMoreBtn.addEventListener('click', () => {
-        // 展开 / 折叠切换
-        codeBlock.classList.toggle('code-show');
+        // 展开 / 折叠切换（带高度过渡动画）
+        if (codeBlock.classList.contains('code-show') && !folding) {
+          // 折叠：保留 code-show（max-height:none 继续生效），只把 height 过渡到折叠高度。
+          // 若提前移除 code-show，max-height:400px 会立即钳制实际渲染高度，收缩动画不可见
+          codeBlock.style.height = codeBlock.scrollHeight + 'px';
+          void codeBlock.offsetHeight; // 强制 reflow，让起始高度生效
+          codeBlock.style.height = foldHeight; // 收缩到展开前记录的折叠高度
+          folding = true;
+        } else {
+          // 展开：解除 max-height 限制后测量完整高度，再过渡伸长
+          // （折叠动画中反悔再点也走这里，从当前高度直接过渡回去）
+          if (!codeBlock.classList.contains('code-show')) {
+            foldHeight = getComputedStyle(codeBlock).maxHeight; // 记录折叠态高度
+            codeBlock.classList.add('code-show');
+            const targetHeight = codeBlock.scrollHeight;
+            codeBlock.style.height = foldHeight; // 先落到折叠高度（瞬时），再过渡到完整高度
+            void codeBlock.offsetHeight; // 强制 reflow，让起始高度生效
+            codeBlock.style.height = targetHeight + 'px';
+          } else {
+            // 折叠动画中反悔：从当前高度直接过渡回完整高度
+            codeBlock.style.height = codeBlock.scrollHeight + 'px';
+          }
+          folding = false;
+        }
         // 触发resize事件，重新计算目录位置
         window.dispatchEvent(new Event('resize'))
+      })
+
+      // 过渡结束后清除内联高度，恢复 CSS 控制（展开态 max-height:none / 折叠态 max-height:400px）
+      codeBlock.addEventListener('transitionend', (e) => {
+        if (e.propertyName === 'height') {
+          codeBlock.style.height = '';
+          // 折叠动画结束：此刻才移除 code-show，恢复 max-height 钳制
+          if (folding) {
+            folding = false;
+            codeBlock.classList.remove('code-show');
+          }
+        }
       })
       // img
       let img = document.createElement('img');
       img.classList.add('code-more-img');
-      img.src = {{ (resources.Get "icons/codeMore.png").Permalink }}
+      img.src = {{ (resources.Get "icons/codeMore.png").RelPermalink }}
       // 元素添加
       codeMoreBtn.appendChild(img);
       codeMoreBox.appendChild(codeMoreBtn);
@@ -766,8 +823,9 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 要点：
 
 1. **只折叠真正超长的块**：`scrollHeight > clientHeight` 判定，短代码块不注入按钮，不会被误折叠。
-2. **图标资源走 Hugo 管道**：`(resources.Get "icons/codeMore.png").Permalink` 在构建时解析为带 hash 的产物路径（`codeMore.png` 是 577 字节的极小图标）。
+2. **图标资源走 Hugo 管道**：`(resources.Get "icons/codeMore.png").RelPermalink` 在构建时解析为带 hash 的产物路径（`codeMore.png` 是 577 字节的极小图标）。
 3. **展开图标复用**：收起状态就是展开图标旋转 180°。
+4. **动画机制**：CSS 的 `max-height` 从 400px 过渡到 `none` 是不成立的（`none` 不是可过渡值），所以动画由 JS 驱动——点击时先测量 `scrollHeight` 得到真实完整高度，再让 `height` 在折叠高度与完整高度之间做 0.3s 过渡。折叠方向有个关键细节：**折叠动画期间必须保留 `code-show`**——一旦移除，`max-height: 400px` 立即恢复并钳制实际渲染高度，`height` 过渡就不可见了（这也是"展开有动画、折叠没有"的根因）。所以折叠时只把 `height` 收缩到展开前记录的折叠高度（`foldHeight`，在展开时从 `getComputedStyle(codeBlock).maxHeight` 读取，改 CSS 里的 `max-height` 值后 JS 无需同步），等 `transitionend` 之后才移除 `code-show` 恢复钳制，遮罩淡入与按钮复位也顺延到此刻触发。过渡结束统一用 `transitionend` 清掉内联高度，恢复 CSS 控制。
 
 代码块内部所有子元素（Chroma 高亮表格等）的背景统一强制为 `--pre-background-color`，与折叠遮罩共用同一个变量：
 
@@ -790,6 +848,8 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 - **渐变遮罩露色差**：遮罩渐变终点的颜色必须与代码块背景完全一致。因为代码块背景在亮/暗模式下不同（`--pre-background-color`：亮 `#f9f9ee` / 暗 `#22221c`），遮罩用 `var(--pre-background-color)` 而不是写死的颜色，两种模式都不会露出色差。
 - **展开后按钮悬空**：按钮最初用 `absolute` 定位在容器底部（`bottom: 0`），展开后它与代码最后一行之间隔着内边距，看起来悬浮在空中。`.code-show` 下改为 `position: static` 后按钮紧随代码内容，吸附在下边缘。
 - **展开后目录高亮错位**：代码块展开改变了页面高度，TOC 的滚动监听没有更新——点击后 `dispatchEvent(new Event('resize'))` 让 TOC 重新计算（见下一节）。
+- **遮罩与动画的冲突**：最初的渐变直接写在 `.code-more-box` 的 `background-image` 上，`background-image` 不能过渡，展开瞬间遮罩会"啪"地消失。把渐变移到 `::before` 伪元素上后，用 `opacity` 过渡实现淡出/淡入，与高度动画同步。
+- **折叠没有动画**：折叠时如果先移除 `code-show` 再过渡 `height`，`max-height: 400px` 会立即钳制实际渲染高度，`height` 过渡不可见——展开正常是因为 `code-show` 已解除钳制，两者表现不对称。修复：折叠期间保留 `code-show`，只让 `height` 收缩到记录下的折叠高度，`transitionend` 后再移除 `code-show` 恢复钳制。
 
 ---
 
