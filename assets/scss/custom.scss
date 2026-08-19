@@ -1,5 +1,4 @@
 :root {
-    //--body-background: url("/img/background1.png");
     --card-background: rgba(250, 250, 250, 0.65);
     --card-border-color: rgba(250, 250, 250, 0.65);
     --scrollbar-track: rgba(250, 250, 250, 0.65);
@@ -13,7 +12,6 @@
     --pre-background-color: #f9f9ee;
 
     &[data-scheme="dark"] {
-        //--body-background: url("/img/background2.png");
         --card-background: rgba(0, 0, 0, 0.65);
         --card-border-color: rgba(0, 0, 0, 0.65);
         --scrollbar-track: rgba(0, 0, 0, 0.65);
@@ -125,7 +123,6 @@ kbd {
     scrollbar-color: rgba(128, 128, 128, 0.5) transparent;
 }
 
-//提示框（Alert）配色 —— Typora/GitHub 风格
 //亮色模式使用 GitHub 亮色 alert 色值，暗色模式使用 GitHub 暗色同源色值
 $alert-light: (note: #0965da, tip: #1f883d, important: #8250df, warning: #9a6700, caution: #cf222e);
 $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922, caution: #f85149);
@@ -192,12 +189,6 @@ kbd,
     }
 }
 
-//主题切换按钮：字重统一
-//主题 sidebar.scss 在暗色模式下给按钮整体加了 font-weight: 700（配合 accent 色），
-//亮色模式则未设置字重——按钮文案随模式切换（「暗色模式」↔「亮色模式」），
-//导致暗色模式下显示的「亮色模式」比亮色模式下的「暗色模式」更粗，这里覆写为统一字重。
-//注意要覆盖到 [data-scheme="dark"] 的高特异性选择器；
-//custom.scss 在主题 style.scss 末尾 import，同特异性下后定义者生效
 #dark-mode-toggle,
 [data-scheme="dark"] #dark-mode-toggle {
     font-weight: 400;

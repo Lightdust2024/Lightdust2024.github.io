@@ -3,8 +3,7 @@
 {{- $lightBg := (resources.Get "img/background1.png").Process "webp q100" -}}
 {{- $darkBg := (resources.Get "img/background2.png").Process "webp q100" -}}
 <script>
-    // 背景图层在此内联脚本中创建，早于 defer 的 custom.js，
-    // 配合 preload 让背景图在页面加载时就位，避免闪屏
+    // 内联创建背景图层（早于 defer 的 custom.js）并 preload，避免闪屏
     (function() {
         const lightBg = '{{ $lightBg.RelPermalink }}';
         const darkBg = '{{ $darkBg.RelPermalink }}';
@@ -22,12 +21,12 @@
             document.head.appendChild(link);
         }
 
-        // head 解析阶段立即下载当前主题的背景图（此时 data-scheme 已由 colorScheme 内联脚本设置）
+        // head 解析阶段立即下载当前主题的背景图
         const currentScheme = document.documentElement.getAttribute('data-scheme') || 'light';
         preloadImage(currentScheme === 'dark' ? darkBg : lightBg);
 
         function initBackground() {
-            // 等待 body 存在（body 背景会盖住 html 下的负 z-index 元素，必须挂在 body 内）
+            // 等待 body 存在（背景层必须挂在 body 内）
             if (!document.body) {
                 requestAnimationFrame(initBackground);
                 return;
@@ -41,12 +40,11 @@
             bgContainer.style.height = '100%';
             bgContainer.style.zIndex = '-999';
             bgContainer.style.pointerEvents = 'none';
-            // 加速整个容器
+            // GPU 加速
             bgContainer.style.willChange = 'opacity';
             bgContainer.style.transform = 'translateZ(0)';
 
-            // 创建时按当前主题直接设置初始状态（无动画），
-            // 避免暗色模式下加载页面时先闪亮色背景再动画切换
+            // 初始状态直接按当前主题设置（无动画），避免加载时闪屏
             const isDark = (document.documentElement.getAttribute('data-scheme') || 'light') === 'dark';
 
             const lightLayer = document.createElement('div');
@@ -101,7 +99,7 @@
                 });
             }
 
-            // 监听主题切换，切换时预加载目标背景图，保证下次切换流畅
+            // 监听主题切换，并预加载目标背景图
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.attributeName === 'data-scheme') {

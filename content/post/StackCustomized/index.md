@@ -104,8 +104,7 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
 {{- $lightBg := (resources.Get "img/background1.png").Process "webp q100" -}}
 {{- $darkBg := (resources.Get "img/background2.png").Process "webp q100" -}}
 <script>
-    // 背景图层在此内联脚本中创建，早于 defer 的 custom.js，
-    // 配合 preload 让背景图在页面加载时就位，避免闪屏
+    // 内联创建背景图层（早于 defer 的 custom.js）并 preload，避免闪屏
     (function() {
         const lightBg = '{{ $lightBg.RelPermalink }}';
         const darkBg = '{{ $darkBg.RelPermalink }}';
@@ -123,12 +122,12 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
             document.head.appendChild(link);
         }
 
-        // head 解析阶段立即下载当前主题的背景图（此时 data-scheme 已由 colorScheme 内联脚本设置）
+        // head 解析阶段立即下载当前主题的背景图
         const currentScheme = document.documentElement.getAttribute('data-scheme') || 'light';
         preloadImage(currentScheme === 'dark' ? darkBg : lightBg);
 
         function initBackground() {
-            // 等待 body 存在（body 背景会盖住 html 下的负 z-index 元素，必须挂在 body 内）
+            // 等待 body 存在（背景层必须挂在 body 内）
             if (!document.body) {
                 requestAnimationFrame(initBackground);
                 return;
@@ -142,12 +141,11 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
             bgContainer.style.height = '100%';
             bgContainer.style.zIndex = '-999';
             bgContainer.style.pointerEvents = 'none';
-            // 加速整个容器
+            // GPU 加速
             bgContainer.style.willChange = 'opacity';
             bgContainer.style.transform = 'translateZ(0)';
 
-            // 创建时按当前主题直接设置初始状态（无动画），
-            // 避免暗色模式下加载页面时先闪亮色背景再动画切换
+            // 初始状态直接按当前主题设置（无动画），避免加载时闪屏
             const isDark = (document.documentElement.getAttribute('data-scheme') || 'light') === 'dark';
 
             const lightLayer = document.createElement('div');
@@ -202,7 +200,7 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
                 });
             }
 
-            // 监听主题切换，切换时预加载目标背景图，保证下次切换流畅
+            // 监听主题切换，并预加载目标背景图
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.attributeName === 'data-scheme') {
@@ -250,11 +248,8 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
 文件：`assets/js/custom.js`
 
 ```js
-// assets/js/custom.js
-// 背景图层的创建与主题切换监听已移至 layouts/partials/head/custom.html 的内联脚本，
-// 以便在页面加载早期（head 解析阶段）就创建背景图层并 preload 背景图，避免闪屏。
+// 切换主题时禁用毛玻璃过渡，切换后恢复（背景图层切换由 head/custom.html 处理）
 (function() {
-    // 切换主题时禁用毛玻璃过渡，切换后恢复
     function switchTheme(newScheme) {
         const root = document.documentElement;
         // 只给毛玻璃元素添加 .no-transition，不影响背景层
@@ -263,7 +258,6 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
         );
         glassElements.forEach(el => el.classList.add('no-transition'));
 
-        // 更改主题属性
         root.setAttribute('data-scheme', newScheme);
 
         // 等待两帧后移除 .no-transition
@@ -273,14 +267,6 @@ Stack 主题支持通过 `--body-background` 变量直接设置背景图片，�
             });
         });
     }
-
-    // 如果您有主题切换按钮，建议在按钮点击时调用 switchTheme，而不依赖 observer
-    // 例如：
-    // document.querySelector('#theme-toggle').addEventListener('click', function() {
-    //     const current = document.documentElement.getAttribute('data-scheme');
-    //     const next = current === 'light' ? 'dark' : 'light';
-    //     switchTheme(next);
-    // });
 })();
 ```
 
@@ -332,11 +318,10 @@ kbd,
 
 ### 变量重定义
 
-文件：`assets/scss/custom.scss`（第 1-27 行）
+文件：`assets/scss/custom.scss`（第 1-25 行）
 
 ```scss
 :root {
-    //--body-background: url("/img/background1.png");
     --card-background: rgba(250, 250, 250, 0.65);
     --card-border-color: rgba(250, 250, 250, 0.65);
     --scrollbar-track: rgba(250, 250, 250, 0.65);
@@ -350,7 +335,6 @@ kbd,
     --pre-background-color: #f9f9ee;
 
     &[data-scheme="dark"] {
-        //--body-background: url("/img/background2.png");
         --card-background: rgba(0, 0, 0, 0.65);
         --card-border-color: rgba(0, 0, 0, 0.65);
         --scrollbar-track: rgba(0, 0, 0, 0.65);
@@ -368,7 +352,7 @@ kbd,
 
 ### 毛玻璃与 GPU 优化
 
-文件：`assets/scss/custom.scss`（第 59-78 行）
+文件：`assets/scss/custom.scss`（第 57-76 行）
 
 ```scss
 //毛玻璃效果和独立合成层，避免滤镜重绘卡顿
@@ -397,7 +381,7 @@ kbd,
 
 ### 正文区域独立背景
 
-文件：`assets/scss/custom.scss`（第 81-87 行）
+文件：`assets/scss/custom.scss`（第 78-85 行）
 
 ```scss
 //文章内容背景（独立于卡片背景）
@@ -434,7 +418,7 @@ kbd,
 
 其余样式细节：
 
-文件：`assets/scss/custom.scss`（第 29-35 行、第 104-126 行、第 147-168 行）
+文件：`assets/scss/custom.scss`（第 27-33 行、第 87-90 行、第 102-124 行、第 144-165 行）
 
 ```scss
 //页面背景
@@ -532,7 +516,7 @@ kbd {
 
 ### 灰色引用块
 
-文件：`assets/scss/custom.scss`（第 37-46 行）
+文件：`assets/scss/custom.scss`（第 35-44 行）
 
 ```scss
 //引用块（灰色）
@@ -553,7 +537,7 @@ kbd {
 
 Hugo 0.14x+ 原生支持 GitHub 风格 alert 语法（`> [!note]`、`> [!tip]`、`> [!important]`、`> [!warning]`、`> [!caution]`），默认渲染成简单 blockquote。本站在 `layouts/_default/_markup/` 下覆写了它的渲染钩子（`render-blockquote-alert.html`），输出带图标的彩色提示块。
 
-文件：`layouts/_default/_markup/render-blockquote-alert.html`
+文件：`layouts/_default/_markup/render-blockquote-alert.html`（摘录：5 个图标 SVG 过长，tip/important/warning/caution 见仓库文件）
 
 ```html
 {{- $titles := dict "note" "Note" "tip" "Tip" "important" "Important" "warning" "Warning" "caution" "Caution" -}}
@@ -579,10 +563,9 @@ Hugo 0.14x+ 原生支持 GitHub 风格 alert 语法（`> [!note]`、`> [!tip]`�
 
 ### Alert 配色
 
-文件：`assets/scss/custom.scss`（第 128-145 行）
+文件：`assets/scss/custom.scss`（第 126-142 行）
 
 ```scss
-//提示框（Alert）配色 —— Typora/GitHub 风格
 //亮色模式使用 GitHub 亮色 alert 色值，暗色模式使用 GitHub 暗色同源色值
 $alert-light: (note: #0965da, tip: #1f883d, important: #8250df, warning: #9a6700, caution: #cf222e);
 $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922, caution: #f85149);
@@ -606,7 +589,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 标题行的图标与文字排布（图标颜色跟随文字）：
 
-文件：`assets/scss/custom.scss`（第 48-57 行）
+文件：`assets/scss/custom.scss`（第 46-55 行）
 
 ```scss
 //提示块标题
@@ -633,7 +616,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 代码块折叠针对的是**带行号**的长代码块，需要先开启行号：
 
-文件：`config/_default/markup.toml`
+文件：`config/_default/markup.toml`（摘录：highlight 段）
 
 ```toml
 [highlight]
@@ -643,15 +626,15 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 ### 样式
 
-文件：`layouts/partials/footer/custom.html`（第 62-152 行）
+文件：`layouts/partials/footer/custom.html`（第 62-149 行）
 
 ```html
 <style>
     .highlight {
-        /* 你可以根据需要调整这个高度 */
+        /* 折叠高度，可按需调整 */
         max-height: 400px;
         overflow: hidden;
-        /* 展开/收起时的高度过渡动画（配合 JS 动态设置 height，实现平滑伸长/缩短） */
+        /* 展开/收起的高度过渡动画（JS 动态设置 height） */
         transition: height 0.3s ease;
     }
 
@@ -669,7 +652,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
         z-index: 1;
     }
 
-    /* 渐变遮罩独立为伪元素：展开时淡出、折叠时淡入 */
+    /* 渐变遮罩：展开时淡出、折叠时淡入 */
     .code-more-box::before {
         content: '';
         position: absolute;
@@ -677,8 +660,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
         left: 0;
         right: 0;
         bottom: 0;
-        /* 渐变遮罩底色跟随代码块背景（--pre-background-color 按亮/暗模式切换）：
-           亮色 #fafafa / 暗色 #272822，与 .highlight 背景完全一致，避免渐隐处露色差 */
+        /* 底色跟随代码块背景（--pre-background-color 随明暗模式切换），避免露色差 */
         background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--pre-background-color));
         opacity: 1;
         transition: opacity 0.3s ease;
@@ -707,17 +689,15 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
         transition: transform 0.3s ease;
     }
 
-    /* ===== 展开状态：按钮改为文档流定位，紧贴代码内容底部，与折叠时一样吸附在代码块下边缘中央 ===== */
+    /* 展开态：按钮改文档流定位，紧贴代码内容底部（absolute 底部定位会悬浮） */
     .highlight.code-show .code-more-box {
         background: none;
         padding-top: 8px;
         padding-bottom: 8px;
-        /* 脱离绝对定位：absolute 的 bottom:0 会把按钮带到容器底部，
-           与代码最后一行之间隔着内边距导致按钮悬浮；static 后按钮紧随代码内容，吸附在下边缘 */
         position: static;
     }
 
-    /* 展开时渐变遮罩淡出（配合高度过渡，避免遮罩瞬间消失） */
+    /* 展开时遮罩淡出 */
     .highlight.code-show .code-more-box::before {
         opacity: 0;
     }
@@ -741,7 +721,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 ### 脚本
 
-文件：`layouts/partials/footer/custom.html`（第 180-253 行）
+文件：`layouts/partials/footer/custom.html`（第 175-241 行）
 
 ```html
 <script>
@@ -751,65 +731,58 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
       return;
     }
     codeBlocks.forEach(codeBlock => {
-      // 校验是否overflow
+      // 只处理超长代码块
       if (codeBlock.scrollHeight <= codeBlock.clientHeight) {
         return;
       }
-      // 元素初始化
-      // codeMoreBox
+      // 创建遮罩与按钮
       let codeMoreBox = document.createElement('div');
       codeMoreBox.classList.add('code-more-box');
-      // codeMoreBtn
       let codeMoreBtn = document.createElement('span');
       codeMoreBtn.classList.add('code-more-btn');
-      // 折叠态高度（每次展开时从 CSS 读取记录）；folding 标记折叠动画进行中
+      // foldHeight：折叠态高度（展开时记录）；folding：折叠动画进行中
       let foldHeight = '';
       let folding = false;
       codeMoreBtn.addEventListener('click', () => {
-        // 展开 / 折叠切换（带高度过渡动画）
         if (codeBlock.classList.contains('code-show') && !folding) {
-          // 折叠：保留 code-show（max-height:none 继续生效），只把 height 过渡到折叠高度。
-          // 若提前移除 code-show，max-height:400px 会立即钳制实际渲染高度，收缩动画不可见
+          // 折叠：保留 code-show（解除 max-height 钳制）只过渡 height，动画结束再移除
           codeBlock.style.height = codeBlock.scrollHeight + 'px';
           void codeBlock.offsetHeight; // 强制 reflow，让起始高度生效
-          codeBlock.style.height = foldHeight; // 收缩到展开前记录的折叠高度
+          codeBlock.style.height = foldHeight;
           folding = true;
         } else {
-          // 展开：解除 max-height 限制后测量完整高度，再过渡伸长
-          // （折叠动画中反悔再点也走这里，从当前高度直接过渡回去）
+          // 展开：解除 max-height 限制后测量完整高度再过渡伸长
+          // （折叠动画中反悔再点也走这里，直接从当前高度过渡回去）
           if (!codeBlock.classList.contains('code-show')) {
-            foldHeight = getComputedStyle(codeBlock).maxHeight; // 记录折叠态高度
+            foldHeight = getComputedStyle(codeBlock).maxHeight;
             codeBlock.classList.add('code-show');
             const targetHeight = codeBlock.scrollHeight;
-            codeBlock.style.height = foldHeight; // 先落到折叠高度（瞬时），再过渡到完整高度
+            codeBlock.style.height = foldHeight; // 先落到折叠高度，再过渡到完整高度
             void codeBlock.offsetHeight; // 强制 reflow，让起始高度生效
             codeBlock.style.height = targetHeight + 'px';
           } else {
-            // 折叠动画中反悔：从当前高度直接过渡回完整高度
             codeBlock.style.height = codeBlock.scrollHeight + 'px';
           }
           folding = false;
         }
-        // 触发resize事件，重新计算目录位置
+        // 触发 resize 事件，重新计算目录位置
         window.dispatchEvent(new Event('resize'))
       })
 
-      // 过渡结束后清除内联高度，恢复 CSS 控制（展开态 max-height:none / 折叠态 max-height:400px）
+      // 过渡结束清除内联高度，恢复 CSS 控制
       codeBlock.addEventListener('transitionend', (e) => {
         if (e.propertyName === 'height') {
           codeBlock.style.height = '';
-          // 折叠动画结束：此刻才移除 code-show，恢复 max-height 钳制
+          // 折叠结束才移除 code-show，恢复 max-height 钳制
           if (folding) {
             folding = false;
             codeBlock.classList.remove('code-show');
           }
         }
       })
-      // img
       let img = document.createElement('img');
       img.classList.add('code-more-img');
       img.src = {{ (resources.Get "icons/codeMore.png").RelPermalink }}
-      // 元素添加
       codeMoreBtn.appendChild(img);
       codeMoreBox.appendChild(codeMoreBtn);
       codeBlock.appendChild(codeMoreBox)
@@ -829,7 +802,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 代码块内部所有子元素（Chroma 高亮表格等）的背景统一强制为 `--pre-background-color`，与折叠遮罩共用同一个变量：
 
-文件：`assets/scss/custom.scss`（第 94-102 行）
+文件：`assets/scss/custom.scss`（第 92-100 行）
 
 ```scss
 //代码高亮块
@@ -863,7 +836,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 文章页需要开启 TOC widget：
 
-文件：`config/_default/params.toml`
+文件：`config/_default/params.toml`（摘录：widgets 段）
 
 ```toml
 [widgets]
@@ -895,7 +868,7 @@ $alert-dark: (note: #58a6ff, tip: #3fb950, important: #a371f7, warning: #d29922,
 
 ### 脚本
 
-文件：`layouts/partials/footer/custom.html`（第 25-58 行）
+文件：`layouts/partials/footer/custom.html`（第 25-59 行）
 
 ```html
 <script>
@@ -966,30 +939,28 @@ lightMode = "亮色模式"
 
 第二步，在 footer 里监听主题切换事件，用 Hugo 的 `{{ T }}` 在渲染时替换文案：
 
-文件：`layouts/partials/footer/custom.html`（第 154-177 行）
+文件：`layouts/partials/footer/custom.html`（第 151-172 行）
 
 ```html
 <script>
-  // 主题切换时同步 dark-mode-toggle 的文字：
-  // 亮色模式显示「暗色模式」，暗色模式显示「亮色模式」
+  // 同步主题切换按钮文字：亮色模式显示「暗色模式」，暗色模式显示「亮色模式」
   (function () {
     var toggle = document.getElementById('dark-mode-toggle');
     var label = toggle && toggle.querySelector('span');
     if (!label) {
       return;
     }
-    // 从 i18n 读取两种模式的文案（Hugo 渲染时替换；
-    // 不要用 jsonify——会在 script 上下文中被二次转义成带引号的字符串）
+    // 从 i18n 读取文案（T 函数渲染时替换，不要用 jsonify——会被二次转义成带引号字符串）
     var darkLabel = '{{ T "darkMode" }}';
     var lightLabel = '{{ T "lightMode" }}';
     var updateLabel = function (scheme) {
       label.textContent = scheme === 'dark' ? lightLabel : darkLabel;
     };
-    // 监听主题切换事件（StackColorScheme 切换后 dispatch）
+    // 监听主题切换事件
     window.addEventListener('onColorSchemeChange', function (e) {
       updateLabel(e.detail);
     });
-    // 初始化时同步一次，避免事件在监听注册前已派发
+    // 初始化同步一次，避免事件在监听注册前已派发
     updateLabel(document.documentElement.getAttribute('data-scheme'));
   })();
 </script>
@@ -1000,7 +971,7 @@ lightMode = "亮色模式"
 - **文案写死在 JS 里不优雅且不可翻译**——用 `{{ T "darkMode" }}` 走 Hugo 的 i18n 系统，翻译管理统一。
 - **`jsonify` 二次转义**：注释里特意警告不要用 `jsonify` 输出文案——它会在 script 上下文中把字符串再包一层引号，渲染出的 JS 变成带引号的字面量，`label.textContent` 会显示成「"暗色模式"」。
 - **事件早于监听注册**：`onColorSchemeChange` 在初始化切换时可能已经派发过一次，所以脚本执行时先手动同步一次当前 `data-scheme`，避免按钮文案停留在默认值。
-- **暗色模式下按钮文字更粗**：文案修好后按钮会随模式显示「暗色模式」/「亮色模式」，但主题 `sidebar.scss` 在 `[data-scheme="dark"]` 下给 `#dark-mode-toggle` 加了 `font-weight: 700`（配合 accent 色），亮色模式则未设置字重——于是暗色模式下显示的「亮色模式」比亮色模式下显示的「暗色模式」更粗。修复：在 `assets/scss/custom.scss`（第 195-205 行）用相同特异性的 `[data-scheme="dark"] #dark-mode-toggle` 覆写为 `font-weight: 400`。能生效依赖编译顺序：主题 `style.scss` 最后一行 `@import "custom.scss"`，同特异性下后定义者生效。
+- **暗色模式下按钮文字更粗**：文案修好后按钮会随模式显示「暗色模式」/「亮色模式」，但主题 `sidebar.scss` 在 `[data-scheme="dark"]` 下给 `#dark-mode-toggle` 加了 `font-weight: 700`（配合 accent 色），亮色模式则未设置字重——于是暗色模式下显示的「亮色模式」比亮色模式下显示的「暗色模式」更粗。修复：在 `assets/scss/custom.scss`（第 192-195 行）用相同特异性的 `[data-scheme="dark"] #dark-mode-toggle` 覆写为 `font-weight: 400`。能生效依赖编译顺序：主题 `style.scss` 最后一行 `@import "custom.scss"`，同特异性下后定义者生效。
 
 ---
 
@@ -1099,7 +1070,6 @@ Params:
 {{- $attributes := .Attributes | default dict -}}
 
 {{- if and $resize $resource (reflect.IsImageResourceProcessable $resource) $width $height -}}
-    {{/* Create thumbnail with 1x/2x descriptors */}}
     {{- $srcset := slice -}}
     {{- range (slice 1 2) -}}
         {{- $w := mul $width . -}}
@@ -1194,7 +1164,7 @@ page = "/:slug/"
 
 ### 文章更新时间取 Git
 
-文件：`hugo.toml`
+文件：`hugo.toml`（第 11-15 行）
 
 ```toml
 [frontmatter]
